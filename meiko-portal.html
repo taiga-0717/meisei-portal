@@ -6,710 +6,580 @@
 <title>明成個別 Study Portal</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--cb:#1565C0;--cbd:#0D47A1;--cbp:#E3F2FD;--cbp2:#BBDEFB;--border:#DEE8F5;--bg:#F0F4F8;--card:#fff;--t1:#1A237E;--t2:#546E7A;--t3:#90A4AE}
+:root{--blue:#1565C0;--dark:#0D47A1;--light:#E3F2FD;--light2:#BBDEFB;--border:#DEE8F5;--bg:#F0F4F8;--white:#fff;--t1:#1A237E;--t2:#546E7A;--t3:#90A4AE}
 body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;font-size:14px;color:var(--t1);background:var(--bg)}
 
-/* ローディング */
 #loading{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px}
-.spinner{width:36px;height:36px;border:3px solid var(--cbp2);border-top-color:var(--cb);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:36px;height:36px;border:3px solid var(--light2);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* ログイン */
-#login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D47A1 0%,#1565C0 60%,#1976D2 100%)}
-.lcard{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px}
-.llogo{text-align:center;margin-bottom:28px}
-.llogo-mark{width:52px;height:52px;border-radius:14px;background:var(--cbp);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
-.llogo-mark svg{width:28px;height:28px;stroke:var(--cb);fill:none;stroke-width:2;stroke-linecap:round}
-.ltitle{font-size:18px;font-weight:600;color:var(--t1)}
-.lsub{font-size:12px;color:var(--t3);margin-top:3px}
-.lprev{background:var(--cbp);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--cb);text-align:center;margin-bottom:14px;font-weight:500;display:none}
-.lf label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;margin-top:14px}
-.lf input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:15px;color:var(--t1);outline:none;transition:border-color .15s;letter-spacing:.04em}
-.lf input:focus{border-color:var(--cb)}
-.lbtn{width:100%;margin-top:22px;padding:13px;background:var(--cb);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s}
-.lbtn:hover{background:var(--cbd)}
-.lbtn:disabled{background:#90A4AE;cursor:not-allowed}
-.lerr{margin-top:10px;padding:10px 14px;background:#FFEBEE;border-radius:8px;font-size:12px;color:#C62828;display:none}
+#login{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D47A1,#1976D2)}
+.lbox{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:380px}
+.ltop{text-align:center;margin-bottom:24px}
+.ltop h1{font-size:17px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.ltop p{font-size:12px;color:var(--t3)}
+.lf label{display:block;font-size:12px;color:var(--t2);margin:12px 0 4px}
+.lf input{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+.lf input:focus{border-color:var(--blue)}
+.lbtn{width:100%;margin-top:18px;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.lbtn:disabled{background:var(--t3);cursor:not-allowed}
+.lerr{margin-top:8px;padding:9px 12px;background:#FFEBEE;border-radius:7px;font-size:12px;color:#C62828;display:none}
 
-/* トップバー */
-.topbar{background:var(--cbd);height:56px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-mark{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center}
-.logo-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
-.logo-text{color:#fff;font-size:15px;font-weight:600}
-.logo-sub{color:rgba(255,255,255,0.55);font-size:10px;margin-top:1px}
-.tbr{display:flex;align-items:center;gap:10px}
-.ibtn{background:rgba(255,255,255,0.1);border:none;cursor:pointer;color:#fff;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.ibtn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
-.sid-badge{background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:10px;letter-spacing:.04em}
-.hamburger{display:none;background:rgba(255,255,255,0.1);border:none;cursor:pointer;width:34px;height:34px;border-radius:8px;align-items:center;justify-content:center}
-.hamburger svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.topbar{background:var(--dark);height:54px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.tlogo{color:#fff;font-size:14px;font-weight:600}
+.tright{display:flex;align-items:center;gap:8px}
+.tbadge{background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px}
+.tibtn{background:rgba(255,255,255,0.1);border:none;cursor:pointer;width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tibtn svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.hmb{display:none;background:rgba(255,255,255,0.1);border:none;cursor:pointer;width:32px;height:32px;border-radius:7px;align-items:center;justify-content:center}
+.hmb svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
 
-/* サイドバー */
-.sidebar{position:fixed;top:56px;left:0;width:212px;height:calc(100vh - 56px);background:#fff;border-right:0.5px solid var(--border);padding:14px 0;overflow-y:auto;display:flex;flex-direction:column;transition:transform .25s;z-index:90}
-.upanel{padding:12px 16px 14px}
-.uavatar{width:38px;height:38px;border-radius:50%;background:var(--cbp);border:2px solid var(--cbp2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--cbd)}
-.uname{font-size:14px;font-weight:600;color:var(--t1)}
-.ugrade{font-size:11px;color:var(--t3);margin-top:1px}
-.usid{font-size:11px;color:var(--cb);font-weight:600;margin-top:3px;font-family:monospace}
-.divider{height:0.5px;background:var(--border);margin:4px 0}
-.nlabel{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;padding:8px 16px 4px}
-.nitem{display:flex;align-items:center;gap:9px;padding:9px 16px;color:var(--t2);cursor:pointer;border-left:2.5px solid transparent;transition:all .13s;font-size:13px}
-.nitem:hover{background:#F0F7FF;color:var(--cb)}
-.nitem.active{background:#EBF3FD;color:var(--cbd);border-left-color:var(--cb);font-weight:600}
-.nitem svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
-.ncnt{margin-left:auto;font-size:10px;background:#FFEBEE;color:#C62828;padding:2px 7px;border-radius:10px;font-weight:600}
-.sbot{margin-top:auto;padding-top:8px}
+.sidebar{position:fixed;top:54px;left:0;width:208px;height:calc(100vh - 54px);background:#fff;border-right:0.5px solid var(--border);padding:12px 0;overflow-y:auto;display:flex;flex-direction:column;z-index:90;transition:transform .25s}
+.sup{padding:12px 14px 12px}
+.savatar{width:36px;height:36px;border-radius:50%;background:var(--light);border:2px solid var(--light2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--dark)}
+.sname{font-size:13px;font-weight:600;color:var(--t1)}
+.sgrade{font-size:11px;color:var(--t3);margin-top:1px}
+.ssid{font-size:11px;color:var(--blue);font-weight:600;margin-top:2px;font-family:monospace}
+.sdiv{height:0.5px;background:var(--border);margin:4px 0}
+.slbl{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase;padding:7px 14px 3px}
+.si{display:flex;align-items:center;gap:8px;padding:8px 14px;color:var(--t2);cursor:pointer;border-left:2.5px solid transparent;font-size:13px;transition:all .12s}
+.si:hover{background:#F0F7FF;color:var(--blue)}
+.si.on{background:#EBF3FD;color:var(--dark);border-left-color:var(--blue);font-weight:600}
+.si svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.sbot{margin-top:auto;padding-top:6px}
 
-/* メイン */
-.main{margin-left:212px;padding:24px 24px 48px;transition:margin .25s}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:80}
+.main{margin-left:208px;padding:22px 22px 48px}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:80}
 @media(max-width:768px){
-  .hamburger{display:flex}
+  .hmb{display:flex}
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0}
-  .overlay{display:block;opacity:0;pointer-events:none;transition:opacity .25s}
-  .overlay.show{opacity:1;pointer-events:auto}
+  .ov{display:block;opacity:0;pointer-events:none;transition:opacity .2s}
+  .ov.show{opacity:1;pointer-events:auto}
 }
 
-/* ページ共通 */
-.ph{margin-bottom:20px}
-.ph h1{font-size:20px;font-weight:600;color:var(--t1);margin-bottom:3px}
-.ph p{font-size:13px;color:var(--t2)}
-.dchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--cb);background:var(--cbp);border:0.5px solid var(--cbp2);border-radius:20px;padding:4px 12px;margin-bottom:10px}
-.dchip svg{width:13px;height:13px;stroke:var(--cb);fill:none;stroke-width:2}
+.ph{margin-bottom:18px}
+.ph h1{font-size:19px;font-weight:600;color:var(--t1);margin-bottom:2px}
+.ph p{font-size:12px;color:var(--t2)}
 
-/* カード */
-.c4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
-@media(max-width:900px){.c4{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.c4{grid-template-columns:1fr}}
-.mc{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:15px;cursor:pointer;transition:border-color .13s,transform .13s}
-.mc:hover{border-color:var(--cbp2);transform:translateY(-1px)}
-.mc-icon{width:32px;height:32px;border-radius:8px;background:var(--cbp);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-.mc-icon svg{width:16px;height:16px;stroke:var(--cb);fill:none;stroke-width:2;stroke-linecap:round}
-.mc-label{font-size:11px;color:var(--t3);margin-bottom:4px}
-.mc-val{font-size:24px;font-weight:600;color:var(--t1);line-height:1}
-.mc-sub{font-size:11px;color:var(--t3);margin-top:4px}
-
-/* グリッド */
-.g2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:15px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:800px){.g2,.g3{grid-template-columns:1fr}}
-.card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px}
+.card{background:var(--white);border:0.5px solid var(--border);border-radius:12px;padding:15px;margin-bottom:14px}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.ct{font-size:13px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:7px}
-.ct svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
-.clink{font-size:12px;color:var(--cb);background:none;border:none;cursor:pointer;padding:0}
-.clink:hover{text-decoration:underline}
+.ct{font-size:13px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:6px}
+.ct svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.clink{font-size:12px;color:var(--blue);background:none;border:none;cursor:pointer;padding:0}
 
-/* 授業リスト */
-.si{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:0.5px solid #EEF2F7}
-.si:last-child{border-bottom:none;padding-bottom:0}
-.tb{min-width:56px;text-align:center;font-size:10px;font-weight:600;padding:3px 0;border-radius:5px;line-height:1.6}
-.l-m{background:#E3F2FD;color:#0D47A1}
-.l-e{background:#E8F5E9;color:#1B5E20}
-.l-s{background:#FFF8E1;color:#F57F17}
-.l-j{background:#FCE4EC;color:#880E4F}
-.l-so{background:#EDE7F6;color:#311B92}
-.sn2{font-size:13px;font-weight:600;color:var(--t1)}
-.sr2{font-size:11px;color:var(--t3);margin-top:1px}
-.now-tag{font-size:10px;background:#E8F5E9;color:#2E7D32;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:600}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.g2{grid-template-columns:1fr}}
+
+/* 時間割 */
+.ttg{display:grid;gap:1px;background:#EEF2F7;border-radius:10px;overflow:hidden;font-size:12px}
+.tth{background:#F8FAFC;padding:7px;font-weight:600;color:var(--t1);text-align:center}
+.tthf{background:var(--light);color:var(--dark);padding:7px;text-align:center;font-weight:600}
+.ttt{background:#F8FAFC;padding:7px;font-size:11px;color:var(--t3)}
+.ttc{background:#fff;padding:6px;min-height:42px}
+.ttcf{background:#EBF3FD;padding:6px;min-height:42px}
+.les{border-radius:5px;padding:4px 5px;font-size:11px;line-height:1.5}
+.lm{background:#E3F2FD;color:#0D47A1}
+.le{background:#E8F5E9;color:#1B5E20}
+.ls{background:#FFF8E1;color:#F57F17}
+.lj{background:#FCE4EC;color:#880E4F}
+.lo{background:#EDE7F6;color:#311B92}
 
 /* 課題 */
-.ti{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:0.5px solid #EEF2F7}
+.ti{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid #EEF2F7}
 .ti:last-child{border-bottom:none}
-.tchk{width:17px;height:17px;border-radius:4px;border:1.5px solid #B0BEC5;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.tchk.done{background:var(--cb);border-color:var(--cb)}
-.tchk.done::after{content:'✓';font-size:11px;color:#fff;font-weight:700}
+.tchk{width:16px;height:16px;border-radius:4px;border:1.5px solid #B0BEC5;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.tchk.dn{background:var(--blue);border-color:var(--blue)}
+.tchk.dn::after{content:'✓';font-size:10px;color:#fff;font-weight:700}
 .ttx{flex:1;font-size:13px;color:#37474F}
-.ttx.done{text-decoration:line-through;color:#B0BEC5}
-.tdue{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
-.du{background:#FFEBEE;color:#C62828}
-.ds{background:#FFF8E1;color:#E65100}
-.dok{background:#E8F5E9;color:#2E7D32}
-
-/* 成績 */
-.gr{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid #EEF2F7}
-.gr:last-child{border-bottom:none}
-.gs{font-size:12px;color:var(--t2);width:56px}
-.gbw{flex:1;height:6px;background:#EEF2F7;border-radius:3px;overflow:hidden}
-.gb{height:100%;border-radius:3px}
-.gsc{font-size:12px;font-weight:600;color:var(--t1);width:38px;text-align:right}
-.gup{font-size:11px;width:28px;text-align:right}
+.ttx.dn{text-decoration:line-through;color:#B0BEC5}
+.tdue{font-size:11px;padding:2px 7px;border-radius:8px;font-weight:600;white-space:nowrap}
+.td-u{background:#FFEBEE;color:#C62828}
+.td-s{background:#FFF8E1;color:#E65100}
+.td-ok{background:#E8F5E9;color:#2E7D32}
 
 /* お知らせ */
-.ni{padding:9px 0;border-bottom:0.5px solid #EEF2F7;cursor:pointer}
+.ni{padding:8px 0;border-bottom:0.5px solid #EEF2F7}
 .ni:last-child{border-bottom:none}
-.ntag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-bottom:4px}
-.nt-imp{background:#FFEBEE;color:#C62828}
-.nt-ex{background:#E3F2FD;color:#0D47A1}
-.nt-ev{background:#E8F5E9;color:#2E7D32}
-.nt2{font-size:13px;color:var(--t1);font-weight:600}
-.nd{font-size:11px;color:var(--t3);margin-top:2px}
+.ntag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;margin-bottom:3px}
+.ni-imp{background:#FFEBEE;color:#C62828}
+.ni-ex{background:#E3F2FD;color:#0D47A1}
+.ni-ev{background:#E8F5E9;color:#2E7D32}
+.ntitle{font-size:13px;font-weight:600;color:var(--t1)}
+.ndate{font-size:11px;color:var(--t3);margin-top:2px}
 
 /* 志望校 */
-.ucard{background:#F8FAFC;border:0.5px solid var(--border);border-radius:9px;padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.ucard:last-child{margin-bottom:0}
-.uinit{width:32px;height:32px;border-radius:7px;background:var(--cbp);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cbd);flex-shrink:0}
-.uname2{font-size:13px;font-weight:600;color:var(--t1)}
-.udept{font-size:11px;color:var(--t3)}
-.urtag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:auto;white-space:nowrap}
-.rA{background:#E8F5E9;color:#2E7D32}
-.rB{background:#E3F2FD;color:#1565C0}
-.rC{background:#FFF8E1;color:#E65100}
-.btn-del{background:none;border:none;color:#B0BEC5;cursor:pointer;font-size:15px;padding:3px;margin-left:4px}
-.btn-del:hover{color:#EF5350}
-.finput{font-size:13px;padding:9px 12px;border:0.5px solid #B0BEC5;border-radius:8px;background:#F8FAFC;color:var(--t1);outline:none;transition:border-color .13s;width:100%}
-.finput:focus{border-color:var(--cb);background:#fff}
-.bprimary{background:var(--cb);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600}
-.bprimary:hover{background:var(--cbd)}
-.foa{text-align:center;padding:32px 20px;background:#F8FAFC;border-radius:10px;border:0.5px dashed var(--cbp2)}
-.ibanner{background:#EBF3FD;border:0.5px solid var(--cbp2);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--cbd);display:flex;gap:8px;align-items:flex-start;margin-top:10px}
-.ibanner svg{width:15px;height:15px;stroke:var(--cb);fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+.uc{background:#F8FAFC;border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:7px;display:flex;align-items:center;gap:9px}
+.uc:last-child{margin-bottom:0}
+.uini{width:30px;height:30px;border-radius:6px;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--dark);flex-shrink:0}
+.un{font-size:13px;font-weight:600;color:var(--t1)}
+.ud{font-size:11px;color:var(--t3)}
+.urt{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;margin-left:auto;white-space:nowrap}
+.ra{background:#E8F5E9;color:#2E7D32}
+.rb{background:#E3F2FD;color:#1565C0}
+.rc{background:#FFF8E1;color:#E65100}
+.bdel{background:none;border:none;color:#B0BEC5;cursor:pointer;font-size:14px;padding:2px;margin-left:3px}
+.fin{font-size:13px;padding:9px 11px;border:0.5px solid #B0BEC5;border-radius:7px;background:#F8FAFC;color:var(--t1);outline:none;width:100%}
+.fin:focus{border-color:var(--blue);background:#fff}
+.bpri{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600}
+.bpri:hover{background:var(--dark)}
 
-/* 時間割グリッド */
-.ttgrid{display:grid;gap:1px;background:#EEF2F7;border-radius:10px;overflow:hidden;font-size:12px}
-.tthead{background:#F8FAFC;padding:8px;font-weight:600;color:var(--t1);text-align:center;font-size:12px}
-.ttheadfocus{background:var(--cbp);color:var(--cbd);text-align:center;padding:8px;font-size:12px;font-weight:600}
-.tttime{background:#F8FAFC;padding:8px;font-size:11px;color:var(--t3)}
-.ttcell{background:var(--card);padding:7px;min-height:44px}
-.ttfocus{background:#EBF3FD;padding:7px;min-height:44px}
-.lesson{border-radius:6px;padding:5px;font-size:11px;line-height:1.5}
-
+.empty{text-align:center;padding:28px;color:var(--t3);font-size:13px}
 .ap{display:block}.hp{display:none}
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--t3)">読み込み中...</div></div>
+<div id="loading"><div class="spin"></div><div style="font-size:13px;color:var(--t3)">読み込み中...</div></div>
 
-<!-- ログイン -->
-<div id="login-screen">
-  <div class="lcard">
-    <div class="llogo">
-      <div class="llogo-mark"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-      <div class="ltitle">明成個別 Study Portal</div>
-      <div class="lsub">for High School Students</div>
+<!-- ログイン画面 -->
+<div id="login">
+  <div class="lbox">
+    <div class="ltop">
+      <h1>明成個別 Study Portal</h1>
+      <p>生徒番号とパスワードでログイン</p>
     </div>
-    <div class="lprev" id="lprev"></div>
     <div class="lf">
       <label>生徒番号</label>
-      <input type="text" id="l-sid" placeholder="例：S2026001" oninput="prevSid(this.value)" style="text-transform:uppercase">
+      <input type="text" id="sid" placeholder="例：S2026001" style="text-transform:uppercase">
       <label>パスワード</label>
-      <input type="password" id="l-pw" placeholder="パスワードを入力">
+      <input type="password" id="pw" placeholder="パスワードを入力">
       <button class="lbtn" id="lbtn" onclick="doLogin()">ログイン</button>
       <div class="lerr" id="lerr"></div>
     </div>
   </div>
 </div>
 
-<!-- ポータル -->
-<div id="portal" style="display:none">
-  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+<!-- ポータル本体 -->
+<div id="app" style="display:none">
+  <div class="ov" id="ov" onclick="closeSB()"></div>
+
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="hamburger" onclick="toggleSidebar()" aria-label="メニュー"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <div class="logo">
-        <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <div><div class="logo-text">明成個別 Study Portal</div><div class="logo-sub">for High School Students</div></div>
-      </div>
+      <button class="hmb" onclick="toggleSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <span class="tlogo">明成個別 Study Portal</span>
     </div>
-    <div class="tbr">
-      <div class="sid-badge" id="tsid">--</div>
-      <button class="ibtn" onclick="gotoPage('news')" aria-label="お知らせ"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-      <button class="ibtn" onclick="doLogout()" aria-label="ログアウト"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    <div class="tright">
+      <span class="tbadge" id="t-sid">--</span>
+      <button class="tibtn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
     </div>
   </div>
 
-  <div class="sidebar" id="sidebar">
-    <div class="upanel">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div class="uavatar" id="savatar">--</div>
-        <div><div class="uname" id="sname">--</div><div class="ugrade" id="sgrade"></div><div class="usid" id="ssid"></div></div>
+  <div class="sidebar" id="sb">
+    <div class="sup">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+        <div class="savatar" id="s-av">--</div>
+        <div>
+          <div class="sname" id="s-nm">--</div>
+          <div class="sgrade" id="s-gr"></div>
+          <div class="ssid" id="s-sd"></div>
+        </div>
       </div>
-      <div style="background:var(--cbp);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--cbd);display:flex;justify-content:space-between"><span>出席率</span><span style="font-weight:600">92%</span></div>
     </div>
-    <div class="divider"></div>
-    <div class="nlabel">メインメニュー</div>
-    <div class="nitem active" onclick="gotoPage('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>ダッシュボード</div>
-    <div class="nitem" onclick="gotoPage('schedule')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>時間割・授業</div>
-    <div class="nitem" onclick="gotoPage('tasks')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>宿題・課題<span class="ncnt" id="tcnt">0</span></div>
-    <div class="nitem" onclick="gotoPage('grades')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>成績・テスト</div>
-    <div class="nitem" onclick="gotoPage('univ')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>進路・志望校</div>
-    <div class="nitem" onclick="gotoPage('news')"><svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4zm0 0a4 4 0 0 1-4-4V9h4"/></svg>お知らせ</div>
-    <div class="divider" style="margin-top:8px"></div>
-    <div class="sbot"><div class="nlabel">アカウント</div>
-      <div class="nitem" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>ログアウト</div>
+    <div class="sdiv"></div>
+    <div class="slbl">メニュー</div>
+    <div class="si on" onclick="go('dash')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>ダッシュボード</div>
+    <div class="si" onclick="go('tt')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>時間割</div>
+    <div class="si" onclick="go('tasks')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>課題・宿題</div>
+    <div class="si" onclick="go('news')"><svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4zm0 0a4 4 0 0 1-4-4V9h4"/></svg>お知らせ</div>
+    <div class="si" onclick="go('univ')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>志望校</div>
+    <div class="sdiv" style="margin-top:8px"></div>
+    <div class="sbot">
+      <div class="si" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>ログアウト</div>
     </div>
   </div>
 
-  <div class="main" id="main">
+  <div class="main">
 
-    <!-- DASHBOARD -->
-    <div id="page-dashboard" class="ap">
-      <div class="dchip"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="today-date"></span></div>
-      <div class="ph"><h1 id="greeting">こんにちは 👋</h1><p>今日も頑張りましょう！</p></div>
-      <div class="c4">
-        <div class="mc" onclick="gotoPage('schedule')">
-          <div class="mc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-          <div class="mc-label">今日の授業</div><div class="mc-val" id="today-cnt">0</div><div class="mc-sub">コマ</div>
-        </div>
-        <div class="mc" onclick="gotoPage('tasks')">
-          <div class="mc-icon" style="background:#FFEBEE"><svg viewBox="0 0 24 24" style="stroke:#C62828"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
-          <div class="mc-label">未完了の課題</div><div class="mc-val" id="tcnt2">0</div><div class="mc-sub">自分宛</div>
-        </div>
-        <div class="mc" onclick="gotoPage('grades')">
-          <div class="mc-icon" style="background:#E8F5E9"><svg viewBox="0 0 24 24" style="stroke:#2E7D32"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div>
-          <div class="mc-label">偏差値</div><div class="mc-val">62 <span style="font-size:13px;color:#2E7D32">↑</span></div><div class="mc-sub" style="color:#2E7D32">先月より +1.4</div>
-        </div>
-        <div class="mc" onclick="gotoPage('univ')">
-          <div class="mc-icon" style="background:#FCE4EC"><svg viewBox="0 0 24 24" style="stroke:#880E4F"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-          <div class="mc-label">登録志望校</div><div class="mc-val" id="ucnt">0</div><div class="mc-sub">クリックで管理</div>
-        </div>
-      </div>
+    <!-- ダッシュボード -->
+    <div id="p-dash" class="ap">
+      <div class="ph"><h1 id="greet">こんにちは 👋</h1><p id="today-str"></p></div>
       <div class="g2">
         <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:var(--cb)" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>今日の時間割</div><button class="clink" onclick="gotoPage('schedule')">週間表 →</button></div>
-          <div id="today-schedule"><div style="font-size:12px;color:var(--t3);padding:8px 0">読み込み中...</div></div>
+          <div class="ch"><div class="ct"><svg style="stroke:var(--blue)" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>今日の授業</div><button class="clink" onclick="go('tt')">時間割 →</button></div>
+          <div id="d-tt"><div class="empty">読み込み中...</div></div>
         </div>
         <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:#C62828" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>直近の課題</div><button class="clink" onclick="gotoPage('tasks')">すべて →</button></div>
-          <div id="dash-tasks"><div style="font-size:12px;color:var(--t3);padding:8px 0">読み込み中...</div></div>
+          <div class="ch"><div class="ct"><svg style="stroke:#C62828" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>直近の課題</div><button class="clink" onclick="go('tasks')">すべて →</button></div>
+          <div id="d-tasks"><div class="empty">読み込み中...</div></div>
         </div>
       </div>
-      <div class="g2">
-        <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:#C62828" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4zm0 0a4 4 0 0 1-4-4V9h4"/></svg>お知らせ</div><button class="clink" onclick="gotoPage('news')">すべて →</button></div>
-          <div id="dash-news"><div style="font-size:12px;color:var(--t3);padding:8px 0">読み込み中...</div></div>
-        </div>
-        <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:#880E4F" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>志望校</div><button class="clink" onclick="gotoPage('univ')">管理 →</button></div>
-          <div id="dash-univ"></div>
-          <div style="margin-top:10px;text-align:center"><button class="clink" onclick="gotoPage('univ')" style="font-size:12px">＋ 志望校を追加</button></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SCHEDULE -->
-    <div id="page-schedule" class="hp">
-      <div class="ph"><h1>時間割・授業スケジュール</h1><p>今週の授業一覧</p></div>
       <div class="card">
-        <div id="tt-grid-wrap"><div style="text-align:center;padding:32px;color:var(--t3);font-size:13px">読み込み中...</div></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:0.5px solid #EEF2F7;font-size:11px" id="tt-legend" style="display:none">
-          <span style="color:var(--t3)">教科：</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:#E3F2FD;border-radius:2px;margin-right:3px;vertical-align:middle"></span>数学系</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:#E8F5E9;border-radius:2px;margin-right:3px;vertical-align:middle"></span>英語・生物</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:#FFF8E1;border-radius:2px;margin-right:3px;vertical-align:middle"></span>化学・物理</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:#FCE4EC;border-radius:2px;margin-right:3px;vertical-align:middle"></span>国語</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:#EDE7F6;border-radius:2px;margin-right:3px;vertical-align:middle"></span>社会・その他</span>
-        </div>
+        <div class="ch"><div class="ct"><svg style="stroke:#C62828" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/></svg>最新のお知らせ</div><button class="clink" onclick="go('news')">すべて →</button></div>
+        <div id="d-news"><div class="empty">読み込み中...</div></div>
       </div>
     </div>
 
-    <!-- TASKS -->
-    <div id="page-tasks" class="hp">
-      <div class="ph"><h1>宿題・課題管理</h1><p>自分宛の課題を確認しよう</p></div>
-      <div class="card"><div id="tasks-list"><div style="text-align:center;padding:32px;color:var(--t3);font-size:13px">読み込み中...</div></div></div>
+    <!-- 時間割 -->
+    <div id="p-tt" class="hp">
+      <div class="ph"><h1>時間割</h1><p>今週の授業スケジュール</p></div>
+      <div class="card">
+        <div id="tt-wrap"><div class="empty">読み込み中...</div></div>
+      </div>
     </div>
 
-    <!-- GRADES -->
-    <div id="page-grades" class="hp">
-      <div class="ph"><h1>成績・テスト</h1><p>テスト結果の記録と推移を確認しよう</p></div>
-      <div class="c4">
-        <div class="mc"><div class="mc-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="mc-label">5月テスト平均</div><div class="mc-val">75<span style="font-size:13px;color:var(--t3)">点</span></div><div class="mc-sub" style="color:#2E7D32">前回 +3点</div></div>
-        <div class="mc"><div class="mc-icon"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div><div class="mc-label">偏差値</div><div class="mc-val">62</div><div class="mc-sub" style="color:#2E7D32">前回 +1.4</div></div>
-        <div class="mc"><div class="mc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div><div class="mc-label">学内順位</div><div class="mc-val">12<span style="font-size:13px;color:var(--t3)">位</span></div><div class="mc-sub">/ 80名中</div></div>
-        <div class="mc"><div class="mc-icon" style="background:#FFF8E1"><svg viewBox="0 0 24 24" style="stroke:#E65100"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="mc-label">目標偏差値</div><div class="mc-val">67</div><div class="mc-sub" style="color:#E65100">あと +5</div></div>
-      </div>
+    <!-- 課題 -->
+    <div id="p-tasks" class="hp">
+      <div class="ph"><h1>課題・宿題</h1><p>自分宛の課題一覧</p></div>
+      <div class="card"><div id="tasks-wrap"><div class="empty">読み込み中...</div></div></div>
+    </div>
+
+    <!-- お知らせ -->
+    <div id="p-news" class="hp">
+      <div class="ph"><h1>お知らせ</h1><p>明成個別からの最新情報</p></div>
+      <div class="card"><div id="news-wrap"><div class="empty">読み込み中...</div></div></div>
+    </div>
+
+    <!-- 志望校 -->
+    <div id="p-univ" class="hp">
+      <div class="ph"><h1>志望校</h1><p>志望校を登録して目標を明確にしよう</p></div>
       <div class="g2">
         <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:var(--cb)" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>科目別成績（5月定期テスト）</div></div>
-          <div class="gr" style="padding:9px 0"><span class="gs">数学</span><div class="gbw"><div class="gb" style="width:82%;background:var(--cb)"></div></div><span class="gsc">82点</span><span class="gup" style="color:#2E7D32">+4</span></div>
-          <div class="gr" style="padding:9px 0"><span class="gs">英語</span><div class="gbw"><div class="gb" style="width:75%;background:#1976D2"></div></div><span class="gsc">75点</span><span class="gup" style="color:#2E7D32">+2</span></div>
-          <div class="gr" style="padding:9px 0"><span class="gs">化学</span><div class="gbw"><div class="gb" style="width:68%;background:#42A5F5"></div></div><span class="gsc">68点</span><span class="gup" style="color:#C62828">-1</span></div>
-          <div class="gr" style="padding:9px 0"><span class="gs">国語</span><div class="gbw"><div class="gb" style="width:79%;background:#1E88E5"></div></div><span class="gsc">79点</span><span class="gup" style="color:#2E7D32">+3</span></div>
-          <div class="gr" style="padding:9px 0"><span class="gs">社会</span><div class="gbw"><div class="gb" style="width:71%;background:#64B5F6"></div></div><span class="gsc">71点</span><span class="gup" style="color:#2E7D32">+1</span></div>
+          <div class="ch"><div class="ct">志望校を追加</div></div>
+          <div style="display:flex;gap:7px;margin-bottom:8px">
+            <input class="fin" id="u-nm" placeholder="大学名" style="flex:2">
+            <input class="fin" id="u-fc" placeholder="学部名" style="flex:1.5">
+          </div>
+          <div style="display:flex;gap:7px;margin-bottom:11px">
+            <input class="fin" id="u-dp" placeholder="学科（任意）" style="flex:2">
+            <select class="fin" id="u-rk" style="flex:1.5">
+              <option value="">志望順位</option>
+              <option>第1志望</option><option>第2志望</option><option>第3志望</option>
+              <option>滑り止め</option><option>チャレンジ校</option>
+            </select>
+          </div>
+          <div style="text-align:right"><button class="bpri" onclick="addUniv()">追加する</button></div>
+          <div id="u-err" style="font-size:12px;color:#C62828;margin-top:7px;display:none">大学名と学部名を入力してください</div>
         </div>
         <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:var(--cb)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>テスト結果を記録</div></div>
-          <div class="foa">
-            <svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#BBDEFB;fill:none;stroke-width:1.5;display:block;margin:0 auto 12px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:6px">成績記録フォーム</div>
-            <div style="font-size:12px;color:var(--t2);margin-bottom:20px;line-height:1.6">最新のテスト結果を記録しましょう。<br>先生が確認・フィードバックします。</div>
-            <button class="bprimary" style="margin:0 auto" onclick="window.open('https://forms.gle/4t7BBSJvZoHwi8hc7','_blank')">
-              <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              フォームを開く
-            </button>
-          </div>
-          <div class="ibanner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>記録後は1〜2日以内に先生からフィードバックが届きます</div>
+          <div class="ch"><div class="ct">登録済み志望校</div><span id="u-cnt" style="font-size:12px;color:var(--t3)">0校</span></div>
+          <div id="u-list"></div>
+          <div id="u-empty" class="empty">まだ登録されていません</div>
         </div>
       </div>
-    </div>
-
-    <!-- UNIV -->
-    <div id="page-univ" class="hp">
-      <div class="ph"><h1>進路・志望校管理</h1><p>志望校を登録して目標を明確にしよう</p></div>
-      <div class="g2">
-        <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:var(--cb)" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>志望校を追加</div></div>
-          <div style="display:flex;gap:8px;margin-bottom:10px"><input class="finput" id="u-name" placeholder="大学名（例：東京大学）" style="flex:2"><input class="finput" id="u-fac" placeholder="学部名（例：理学部）" style="flex:1.5"></div>
-          <div style="display:flex;gap:8px;margin-bottom:12px">
-            <input class="finput" id="u-dept" placeholder="学科名（任意）" style="flex:2">
-            <select class="finput" id="u-rank" style="flex:1.5"><option value="">志望順位</option><option>第1志望</option><option>第2志望</option><option>第3志望</option><option>滑り止め</option><option>チャレンジ校</option></select>
-          </div>
-          <div style="display:flex;justify-content:flex-end"><button class="bprimary" onclick="addUniv()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>追加する</button></div>
-          <div id="u-err" style="font-size:12px;color:#C62828;margin-top:8px;display:none">大学名と学部名を入力してください</div>
-        </div>
-        <div class="card">
-          <div class="ch"><div class="ct"><svg style="stroke:#880E4F" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>登録済み志望校</div><span style="font-size:12px;color:var(--t3)" id="ulbl">0校</span></div>
-          <div id="ulist"></div>
-          <div id="u-empty" style="text-align:center;padding:20px;color:var(--t3);font-size:13px">まだ登録されていません</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NEWS -->
-    <div id="page-news" class="hp">
-      <div class="ph"><h1>お知らせ・ニュース</h1><p>明成個別からの最新情報</p></div>
-      <div class="card"><div id="news-list"><div style="text-align:center;padding:32px;color:var(--t3);font-size:13px">読み込み中...</div></div></div>
     </div>
 
   </div>
 </div>
 
-<!-- Firebase (module) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, getDocs, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const cfg = {
+const app = initializeApp({
   apiKey:"AIzaSyAtNPdgg_HXOs0FXhuK5kTbcAAqARwzdPI",
   authDomain:"meisei-portal.firebaseapp.com",
   projectId:"meisei-portal",
   storageBucket:"meisei-portal.firebasestorage.app",
   messagingSenderId:"617489242359",
   appId:"1:617489242359:web:6982ec1e6c8474fed11bf2"
-};
-const app = initializeApp(cfg);
+});
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
+const DOM  = '@meisei.internal';
 
-const DOMAIN = '@meisei.internal';
-const toEmail = sid => sid.trim().toUpperCase() + DOMAIN;
-
-// 日付
-const now = new Date();
-const D = ['日','月','火','水','木','金','土'];
-const el = document.getElementById('today-date');
-if(el) el.textContent = now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日（'+D[now.getDay()]+'）';
-
-// Auth監視
+// ===== Auth監視（ログアウトは絶対にしない） =====
 onAuthStateChanged(auth, async user => {
   document.getElementById('loading').style.display = 'none';
   if(!user){
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('portal').style.display = 'none';
+    document.getElementById('login').style.display = 'flex';
+    document.getElementById('app').style.display   = 'none';
     return;
   }
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('portal').style.display = 'block';
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display   = 'block';
   window._uid = user.uid;
 
-  const sid = user.email.replace(DOMAIN,'');
-  document.getElementById('tsid').textContent = sid;
-  document.getElementById('ssid').textContent = sid;
+  // 生徒番号を表示
+  const sid = user.email.replace(DOM,'');
+  document.getElementById('t-sid').textContent = sid;
+  document.getElementById('s-sd').textContent  = sid;
 
-  // 生徒情報
+  // 今日の日付
+  const now = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('today-str').textContent =
+    now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日（'+days[now.getDay()]+'）';
+
+  // 名前・学年
   try {
     const snap = await getDoc(doc(db,'students',user.uid));
     if(snap.exists()){
       const d = snap.data();
-      const name = d.name||sid;
-      document.getElementById('savatar').textContent = name.slice(0,2);
-      document.getElementById('sname').textContent = name;
-      document.getElementById('sgrade').textContent = d.grade||'';
+      const nm = d.name || sid;
+      document.getElementById('s-av').textContent = nm.slice(0,2);
+      document.getElementById('s-nm').textContent = nm;
+      document.getElementById('s-gr').textContent = d.grade || '';
       const h = now.getHours();
-      const g = h<12?'おはようございます':h<17?'こんにちは':'こんばんは';
-      document.getElementById('greeting').textContent = g+'、'+name.replace(/\s/g,'')+'さん 👋';
+      document.getElementById('greet').textContent =
+        (h<12?'おはようございます':h<17?'こんにちは':'こんばんは')+'、'+nm.replace(/\s/g,'')+'さん 👋';
     } else {
-      document.getElementById('savatar').textContent = sid.slice(0,2);
-      document.getElementById('sname').textContent = sid;
+      document.getElementById('s-av').textContent = sid.slice(0,2);
+      document.getElementById('s-nm').textContent = sid;
     }
-  } catch(e){ console.log('生徒情報取得エラー:',e); }
+  } catch(e){ /* エラーでも続行 */ }
 
-  // お知らせ（1回取得）
+  // お知らせ取得
   try {
-    const nSnap = await getDocs(query(collection(db,'notices'), orderBy('createdAt','desc')));
-    window._notices = nSnap.docs.map(d=>({id:d.id,...d.data()}));
-    renderNews(); renderDashNews();
-  } catch(e){ console.log('お知らせエラー:',e); }
+    const ns = await getDocs(query(collection(db,'notices'), orderBy('createdAt','desc')));
+    window._news = ns.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e){ window._news = []; }
 
-  // 課題（1回取得）
+  // 課題取得
   try {
-    const tSnap = await getDocs(query(collection(db,'tasks'), orderBy('due','asc')));
-    window._tasks = tSnap.docs.map(d=>({id:d.id,...d.data()}));
-    renderTasks(); renderDashTasks();
-  } catch(e){ console.log('課題エラー:',e); }
+    const ts = await getDocs(query(collection(db,'tasks'), orderBy('due','asc')));
+    window._tasks = ts.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e){ window._tasks = []; }
 
-  // 時間割
+  // 時間割取得
   try {
-    const ttSnap = await getDoc(doc(db,'timetables',user.uid));
-    window._tt = ttSnap.exists() ? (ttSnap.data().cells||{}) : {};
-  } catch(e){
-    console.log('時間割エラー:',e);
-    window._tt = {};
-  }
-  renderSchedule();
-  renderTodaySchedule();
+    const tt = await getDoc(doc(db,'timetables',user.uid));
+    window._tt = tt.exists() ? (tt.data().cells||{}) : {};
+  } catch(e){ window._tt = {}; }
 
-  // 志望校
+  // 志望校取得
   try {
-    const uSnap = await getDocs(collection(db,'students',user.uid,'univs'));
-    window._univs = uSnap.empty ? [] : uSnap.docs.map(d=>d.data());
-  } catch(e){ window._univs=[]; }
-  renderUniv(); renderDashUniv();
+    const us = await getDocs(collection(db,'students',user.uid,'univs'));
+    window._univs = us.empty ? [] : us.docs.map(d=>d.data());
+  } catch(e){ window._univs = []; }
 
-  // 志望校保存
-  window.saveUnivs = async ()=>{
+  // 志望校保存関数
+  window._saveUnivs = async () => {
     try {
       const col = collection(db,'students',user.uid,'univs');
-      const ex = await getDocs(col);
+      const ex  = await getDocs(col);
       for(const d of ex.docs) await deleteDoc(d.ref);
-      for(let i=0;i<window._univs.length;i++) await setDoc(doc(col,'u'+i),window._univs[i]);
-    } catch(e){ console.log(e); }
+      for(let i=0;i<window._univs.length;i++)
+        await setDoc(doc(col,'u'+i), window._univs[i]);
+    } catch(e){ /* 保存失敗は無視 */ }
   };
+
+  // 全画面を描画
+  renderAll();
 });
 
-// ログイン
-window.doLogin = async ()=>{
-  const sid = document.getElementById('l-sid').value.trim().toUpperCase();
-  const pw = document.getElementById('l-pw').value;
+// ===== ログイン・ログアウト =====
+window.doLogin = async () => {
+  const sid = document.getElementById('sid').value.trim().toUpperCase();
+  const pw  = document.getElementById('pw').value;
   const btn = document.getElementById('lbtn');
   const err = document.getElementById('lerr');
   if(!sid||!pw){ err.style.display='block'; err.textContent='生徒番号とパスワードを入力してください'; return; }
   btn.disabled=true; btn.textContent='ログイン中...'; err.style.display='none';
   try {
-    await signInWithEmailAndPassword(auth, toEmail(sid), pw);
+    await signInWithEmailAndPassword(auth, sid+DOM, pw);
   } catch(e){
-    let msg='ログインに失敗しました';
-    if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found') msg='生徒番号またはパスワードが正しくありません';
-    if(e.code==='auth/too-many-requests') msg='試行回数が多すぎます。しばらく待ってください';
-    err.style.display='block'; err.textContent=msg;
+    const c = e.code||'';
+    err.textContent = (c.includes('invalid-credential')||c.includes('wrong-password')||c.includes('user-not-found'))
+      ? '生徒番号またはパスワードが正しくありません'
+      : c.includes('too-many-requests') ? 'しばらく待ってから再試行してください'
+      : 'ログインに失敗しました';
+    err.style.display='block';
     btn.disabled=false; btn.textContent='ログイン';
   }
 };
-window.doLogout = ()=>signOut(auth);
-document.getElementById('l-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
+window.doLogout = () => signOut(auth);
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
 </script>
 
-<!-- 通常JS -->
 <script>
-window._notices=[];
-window._tasks=[];
-window._tt={};
-window._univs=[];
+// ===== グローバル状態 =====
+window._news  = [];
+window._tasks = [];
+window._tt    = {};
+window._univs = [];
+window._uid   = '';
 
-// 生徒番号プレビュー
-function prevSid(v){
-  const p=document.getElementById('lprev');
-  if(v.trim()){ p.style.display='block'; p.textContent=v.toUpperCase().trim()+'@meisei.internal として接続'; }
-  else p.style.display='none';
+// ===== 描画 =====
+function renderAll(){
+  renderDash();
+  renderTT();
+  renderTasks();
+  renderNews();
+  renderUniv();
 }
 
-// ページ切替
-function gotoPage(p){
-  ['dashboard','schedule','tasks','grades','univ','news'].forEach(id=>{
-    const el=document.getElementById('page-'+id);
-    if(el) el.className=(p===id?'ap':'hp');
+// ===== ナビ =====
+function go(p){
+  ['dash','tt','tasks','news','univ'].forEach(id=>{
+    const el = document.getElementById('p-'+id);
+    if(el) el.className = (p===id ? 'ap' : 'hp');
   });
-  document.querySelectorAll('.nitem').forEach(el=>{
-    el.classList.toggle('active',(el.getAttribute('onclick')||'').includes("'"+p+"'"));
+  document.querySelectorAll('.si').forEach(el=>{
+    const oc = el.getAttribute('onclick')||'';
+    el.classList.toggle('on', oc.includes("'"+p+"'"));
   });
-  closeSidebar();
+  closeSB();
+}
+function toggleSB(){ document.getElementById('sb').classList.toggle('open'); document.getElementById('ov').classList.toggle('show'); }
+function closeSB(){ document.getElementById('sb').classList.remove('open'); document.getElementById('ov').classList.remove('show'); }
+
+// ===== ダッシュボード =====
+function renderDash(){
+  // 今日の授業
+  const el = document.getElementById('d-tt');
+  if(el){
+    const todayIdx = new Date().getDay()-1;
+    if(todayIdx<0||todayIdx>4){
+      el.innerHTML = '<div class="empty">今日は授業がありません</div>';
+    } else {
+      const lessons = Object.entries(window._tt)
+        .filter(([k,v])=>k.startsWith(todayIdx+'-')&&v&&v.name)
+        .map(([k,v])=>v).sort((a,b)=>(a.time||'')<(b.time||'')?-1:1);
+      if(!lessons.length){
+        el.innerHTML = '<div class="empty">今日は授業がありません</div>';
+      } else {
+        const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
+        el.innerHTML = lessons.map(l=>'<div class="ti">'+
+          '<div class="les '+(SCLS[l.key]||'lm')+'" style="min-width:50px;text-align:center">'+l.time+'</div>'+
+          '<div><div style="font-size:13px;font-weight:600;color:var(--t1)">'+l.name+'</div>'+
+          '<div style="font-size:11px;color:var(--t3)">'+(l.teacher||'')+'</div></div>'+
+        '</div>').join('');
+      }
+    }
+  }
+  // 直近の課題
+  const et = document.getElementById('d-tasks');
+  if(et){
+    const mine = myTasks().slice(0,4);
+    if(!mine.length){ et.innerHTML='<div class="empty">課題はありません</div>'; }
+    else et.innerHTML = mine.map(t=>'<div class="ti">'+
+      '<div class="ttx">'+t.name+'</div>'+
+      '<span class="tdue td-ok">'+t.due+'</span></div>').join('');
+  }
+  // お知らせ
+  const en = document.getElementById('d-news');
+  if(en){
+    if(!window._news.length){ en.innerHTML='<div class="empty">お知らせはありません</div>'; }
+    else en.innerHTML = window._news.slice(0,3).map(n=>newsItem(n)).join('');
+  }
 }
 
-// サイドバー
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
-function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+// ===== 時間割 =====
+function renderTT(){
+  const wrap = document.getElementById('tt-wrap');
+  if(!wrap) return;
+  const cells = window._tt||{};
+  if(!Object.keys(cells).length){
+    wrap.innerHTML='<div class="empty">時間割はまだ登録されていません</div>'; return;
+  }
+  const times = [...new Set(Object.values(cells).map(c=>c.time||'').filter(Boolean))].sort();
+  if(!times.length){ wrap.innerHTML='<div class="empty">時間割はまだ登録されていません</div>'; return; }
 
-// チェック
-function togTask(chk){ const d=!chk.classList.contains('done'); chk.classList.toggle('done',d); const tx=chk.nextElementSibling; if(tx) tx.classList.toggle('done',d); }
+  const DAYS=['月','火','水','木','金'];
+  const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
+  const today = new Date().getDay()-1;
 
-// ===== お知らせ =====
-const CATS={important:'重要',exam:'テスト',event:'イベント'};
-const CATCLS={important:'nt-imp',exam:'nt-ex',event:'nt-ev'};
+  let h = '<div class="ttg" style="grid-template-columns:52px repeat(5,1fr)">';
+  h += '<div class="tth" style="background:#F8FAFC;font-size:11px"></div>';
+  DAYS.forEach((d,i)=>{ h+='<div class="'+(i===today?'tthf':'tth')+'">'+d+(i===today?'<br><span style="font-size:9px;font-weight:400">今日</span>':'')+'</div>'; });
 
-function renderNews(){
-  const el=document.getElementById('news-list');
-  if(!el) return;
-  if(!window._notices.length){ el.innerHTML='<div style="text-align:center;padding:32px;color:var(--t3)">お知らせはまだありません</div>'; return; }
-  el.innerHTML=window._notices.map(n=>{
-    const cat=n.cat||'event';
-    const date=n.date||(n.createdAt&&n.createdAt.toDate?n.createdAt.toDate().toLocaleDateString('ja-JP'):'');
-    return '<div class="ni"><span class="ntag '+(CATCLS[cat]||'nt-ev')+'">'+(CATS[cat]||cat)+'</span>'+
-      '<div class="nt2" style="margin-top:5px">'+n.title+'</div>'+
-      (n.body?'<div style="font-size:12px;color:var(--t2);margin-top:4px;line-height:1.6">'+n.body+'</div>':'')+
-      '<div class="nd" style="margin-top:4px">'+date+'</div></div>';
-  }).join('');
-}
-function renderDashNews(){
-  const el=document.getElementById('dash-news');
-  if(!el) return;
-  if(!window._notices.length){ el.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px 0">お知らせはまだありません</div>'; return; }
-  el.innerHTML=window._notices.slice(0,3).map(n=>{
-    const cat=n.cat||'event';
-    return '<div class="ni" onclick="gotoPage(\'news\')" style="cursor:pointer">'+
-      '<span class="ntag '+(CATCLS[cat]||'nt-ev')+'">'+(CATS[cat]||cat)+'</span>'+
-      '<div class="nt2">'+n.title+'</div><div class="nd">'+(n.date||'')+'</div></div>';
-  }).join('');
+  times.forEach(t=>{
+    const hasAny = DAYS.some((_,di)=>cells[di+'-'+t]);
+    if(!hasAny) return;
+    h += '<div class="ttt">'+t+'</div>';
+    DAYS.forEach((_,di)=>{
+      const c = cells[di+'-'+t];
+      const f = di===today;
+      h += '<div class="'+(f?'ttcf':'ttc')+'">'+(c?'<div class="les '+(SCLS[c.key]||'lm')+'">'+c.name+'<br><span style="opacity:.7">'+c.teacher+'</span></div>':'')+'</div>';
+    });
+  });
+  h += '</div>';
+  wrap.innerHTML = h;
 }
 
 // ===== 課題 =====
 function myTasks(){
-  const uid=window._uid||'';
+  const uid = window._uid||'';
   return (window._tasks||[]).filter(t=>!t.targetUids||t.targetUids.includes('all')||t.targetUids.includes(uid));
 }
 function renderTasks(){
-  const el=document.getElementById('tasks-list');
-  if(!el) return;
-  const mine=myTasks();
-  const cnt=document.getElementById('tcnt'); const cnt2=document.getElementById('tcnt2');
-  if(cnt) cnt.textContent=mine.length;
-  if(cnt2) cnt2.textContent=mine.length;
-  if(!mine.length){ el.innerHTML='<div style="text-align:center;padding:32px;color:var(--t3)">課題はまだ登録されていません</div>'; return; }
-  const today=new Date().toISOString().slice(0,10);
-  el.innerHTML=mine.map(t=>{
-    const urg=t.due&&t.due<=new Date(Date.now()+86400000).toISOString().slice(0,10);
-    const soon=t.due&&t.due<=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
-    return '<div class="ti"><div class="tchk" onclick="togTask(this)"></div>'+
-      '<div class="ttx"><span style="font-size:10px;font-weight:600;background:#EDE7F6;color:#311B92;padding:1px 7px;border-radius:8px;margin-right:6px">'+t.subj+'</span>'+
-      t.name+(t.memo?'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+t.memo+'</div>':'')+
-      '</div><span class="tdue '+(urg?'du':soon?'ds':'dok')+'">'+t.due+'</span></div>';
-  }).join('');
-}
-function renderDashTasks(){
-  const el=document.getElementById('dash-tasks');
-  if(!el) return;
-  const mine=myTasks();
-  if(!mine.length){ el.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px 0">課題はまだありません</div>'; return; }
-  el.innerHTML=mine.slice(0,4).map(t=>'<div class="ti"><div class="tchk" onclick="togTask(this)"></div><div class="ttx">'+t.name+'</div><span class="tdue dok">'+t.due+'</span></div>').join('');
-}
-
-// ===== 時間割 =====
-const DAYS=['月','火','水','木','金'];
-const SCLS={m:'l-m',e:'l-e',s:'l-s',j:'l-j',so:'l-so'};
-
-function renderSchedule(){
-  const wrap=document.getElementById('tt-grid-wrap');
+  const wrap = document.getElementById('tasks-wrap');
   if(!wrap) return;
-  const cells=window._tt||{};
-  if(!Object.keys(cells).length){
-    wrap.innerHTML='<div style="text-align:center;padding:32px;color:var(--t3)">時間割はまだ登録されていません</div>';
-    return;
-  }
-  // 使われている時間を収集してソート
-  const times=[...new Set(Object.values(cells).map(c=>c.time||'').filter(Boolean))].sort();
-  if(!times.length){ wrap.innerHTML='<div style="text-align:center;padding:32px;color:var(--t3)">時間割はまだ登録されていません</div>'; return; }
-
-  const cols=DAYS.length+1;
-  let html='<div class="ttgrid" style="grid-template-columns:56px repeat(5,1fr)">';
-  html+='<div class="tthead" style="background:#F8FAFC"></div>';
-  const todayIdx=new Date().getDay()-1;
-  DAYS.forEach((d,i)=>{
-    html+='<div class="'+(i===todayIdx?'ttheadfocus':'tthead')+'">'+d+(i===todayIdx?'<div style="font-size:10px;font-weight:400">今日</div>':'')+'</div>';
-  });
-  times.forEach(t=>{
-    const hasAny=DAYS.some((_,di)=>cells[di+'-'+t]);
-    if(!hasAny) return;
-    html+='<div class="tttime">'+t+'</div>';
-    DAYS.forEach((_,di)=>{
-      const cell=cells[di+'-'+t];
-      const focus=di===todayIdx;
-      html+='<div class="'+(focus?'ttfocus':'ttcell')+'">'+
-        (cell?'<div class="lesson '+(SCLS[cell.key]||'l-m')+'">'+cell.name+'<br><span style="opacity:.7">'+cell.teacher+'</span></div>':'')+
-      '</div>';
-    });
-  });
-  html+='</div>';
-  wrap.innerHTML=html;
-  const leg=document.getElementById('tt-legend');
-  if(leg) leg.style.display='flex';
-}
-
-function renderTodaySchedule(){
-  const el=document.getElementById('today-schedule');
-  if(!el) return;
-  const cells=window._tt||{};
-  const todayIdx=new Date().getDay()-1;
-  if(todayIdx<0||todayIdx>4){
-    el.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px 0">今日は授業がありません</div>';
-    document.getElementById('today-cnt').textContent='0';
-    return;
-  }
-  const todayLessons=Object.entries(cells)
-    .filter(([k,v])=>k.startsWith(todayIdx+'-')&&v&&v.name)
-    .map(([k,v])=>v)
-    .sort((a,b)=>(a.time||'')<(b.time||'')?-1:1);
-  document.getElementById('today-cnt').textContent=todayLessons.length;
-  if(!todayLessons.length){ el.innerHTML='<div style="font-size:12px;color:var(--t3);padding:8px 0">今日は授業がありません</div>'; return; }
-  const now2=new Date();
-  el.innerHTML=todayLessons.map(l=>{
-    const [h]=( l.time||'0:0').split(':').map(Number);
-    const isCurrent=now2.getHours()===h;
-    const isPast=now2.getHours()>h;
-    return '<div class="si">'+
-      '<div class="tb '+(SCLS[l.key]||'l-m')+'">'+l.time+'</div>'+
-      '<div style="flex:1"><div class="sn2">'+l.name+(isCurrent?'<span class="now-tag">進行中</span>':'')+'</div>'+
-      '<div class="sr2">'+(l.teacher||'')+(l.room?' / '+l.room:'')+'</div></div>'+
-      (isPast&&!isCurrent?'<span style="font-size:11px;color:var(--t3)">完了</span>':'')+
+  const mine = myTasks();
+  if(!mine.length){ wrap.innerHTML='<div class="empty">課題はまだ登録されていません</div>'; return; }
+  const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
+  wrap.innerHTML = mine.map(t=>{
+    const urg  = t.due && t.due<=new Date(Date.now()+86400000).toISOString().slice(0,10);
+    const soon = t.due && t.due<=new Date(Date.now()+4*86400000).toISOString().slice(0,10);
+    return '<div class="ti">'+
+      '<div class="tchk" onclick="chk(this)"></div>'+
+      '<div class="ttx">'+
+        (t.subj?'<span style="font-size:10px;font-weight:600;background:#EDE7F6;color:#311B92;padding:1px 6px;border-radius:6px;margin-right:5px">'+t.subj+'</span>':'')+
+        t.name+
+        (t.memo?'<div style="font-size:11px;color:var(--t3);margin-top:1px">'+t.memo+'</div>':'')+
+      '</div>'+
+      '<span class="tdue '+(urg?'td-u':soon?'td-s':'td-ok')+'">'+t.due+'</span>'+
     '</div>';
   }).join('');
+}
+function chk(el){ const d=!el.classList.contains('dn'); el.classList.toggle('dn',d); el.nextElementSibling&&el.nextElementSibling.classList.toggle('dn',d); }
+
+// ===== お知らせ =====
+const NCLS={important:'ni-imp',exam:'ni-ex',event:'ni-ev'};
+const NLBL={important:'重要',exam:'テスト',event:'イベント'};
+function newsItem(n){
+  const cat  = n.cat||'event';
+  const date = n.date||(n.createdAt&&n.createdAt.toDate?n.createdAt.toDate().toLocaleDateString('ja-JP'):'');
+  return '<div class="ni">'+
+    '<span class="ntag '+(NCLS[cat]||'ni-ev')+'">'+(NLBL[cat]||cat)+'</span>'+
+    '<div class="ntitle">'+n.title+'</div>'+
+    (n.body?'<div style="font-size:12px;color:var(--t2);margin-top:3px;line-height:1.6">'+n.body+'</div>':'')+
+    '<div class="ndate">'+date+'</div>'+
+  '</div>';
+}
+function renderNews(){
+  const wrap = document.getElementById('news-wrap');
+  if(!wrap) return;
+  if(!window._news.length){ wrap.innerHTML='<div class="empty">お知らせはまだありません</div>'; return; }
+  wrap.innerHTML = window._news.map(n=>newsItem(n)).join('');
 }
 
 // ===== 志望校 =====
 function renderUniv(){
-  const list=document.getElementById('ulist'); const empty=document.getElementById('u-empty'); const lbl=document.getElementById('ulbl');
-  if(lbl) lbl.textContent=(window._univs||[]).length+'校';
-  if(!window._univs||!window._univs.length){ if(list) list.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  const list  = document.getElementById('u-list');
+  const empty = document.getElementById('u-empty');
+  const cnt   = document.getElementById('u-cnt');
+  if(cnt) cnt.textContent = (window._univs||[]).length+'校';
+  if(!window._univs||!window._univs.length){
+    if(list) list.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
   if(empty) empty.style.display='none';
   if(!list) return;
-  list.innerHTML=window._univs.map((u,i)=>{
-    const rc=u.rank==='第1志望'?'rA':u.rank==='滑り止め'?'rC':'rB';
-    return '<div class="ucard"><div class="uinit">'+u.name.slice(0,2)+'</div>'+
-      '<div style="flex:1"><div class="uname2">'+u.name+'<span class="urtag '+rc+'" style="margin-left:8px">'+u.rank+'</span></div>'+
-      '<div class="udept">'+u.fac+(u.dept?' ／ '+u.dept:'')+'</div></div>'+
-      '<button class="btn-del" onclick="delUniv('+i+')" aria-label="削除">✕</button></div>';
-  }).join('');
-}
-function renderDashUniv(){
-  const d=document.getElementById('dash-univ'); const c=document.getElementById('ucnt');
-  if(c) c.textContent=(window._univs||[]).length;
-  if(!d) return;
-  if(!window._univs||!window._univs.length){ d.innerHTML='<div style="font-size:12px;color:var(--t3);padding:6px 0">まだ登録がありません</div>'; return; }
-  d.innerHTML=window._univs.slice(0,3).map(u=>{
-    const rc=u.rank==='第1志望'?'rA':u.rank==='滑り止め'?'rC':'rB';
-    return '<div class="ucard" style="margin-bottom:6px"><div class="uinit">'+u.name.slice(0,2)+'</div>'+
-      '<div><div class="uname2">'+u.name+'</div><div class="udept">'+u.fac+(u.dept?' ／ '+u.dept:'')+'</div></div>'+
-      '<span class="urtag '+rc+'">'+u.rank+'</span></div>';
+  list.innerHTML = window._univs.map((u,i)=>{
+    const rc = u.rank==='第1志望'?'ra':u.rank==='滑り止め'?'rc':'rb';
+    return '<div class="uc">'+
+      '<div class="uini">'+u.name.slice(0,2)+'</div>'+
+      '<div style="flex:1">'+
+        '<div class="un">'+u.name+'<span class="urt '+rc+'" style="margin-left:7px">'+u.rank+'</span></div>'+
+        '<div class="ud">'+u.fac+(u.dept?' / '+u.dept:'')+'</div>'+
+      '</div>'+
+      '<button class="bdel" onclick="delUniv('+i+')">✕</button>'+
+    '</div>';
   }).join('');
 }
 function addUniv(){
-  const n=document.getElementById('u-name').value.trim(); const f=document.getElementById('u-fac').value.trim();
-  const d2=document.getElementById('u-dept').value.trim(); const r=document.getElementById('u-rank').value;
-  const err=document.getElementById('u-err');
-  if(!n||!f){ err.style.display='block'; return; }
+  const nm = document.getElementById('u-nm').value.trim();
+  const fc = document.getElementById('u-fc').value.trim();
+  const dp = document.getElementById('u-dp').value.trim();
+  const rk = document.getElementById('u-rk').value;
+  const err= document.getElementById('u-err');
+  if(!nm||!fc){ err.style.display='block'; return; }
   err.style.display='none';
-  window._univs.push({name:n,fac:f,dept:d2,rank:r||'未設定'});
-  ['u-name','u-fac','u-dept'].forEach(id=>{ document.getElementById(id).value=''; });
-  document.getElementById('u-rank').value='';
-  renderUniv(); renderDashUniv();
-  if(window.saveUnivs) window.saveUnivs();
+  window._univs.push({name:nm,fac:fc,dept:dp,rank:rk||'未設定'});
+  ['u-nm','u-fc','u-dp'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('u-rk').value='';
+  renderUniv();
+  if(window._saveUnivs) window._saveUnivs();
 }
 function delUniv(i){
-  window._univs.splice(i,1); renderUniv(); renderDashUniv();
-  if(window.saveUnivs) window.saveUnivs();
+  window._univs.splice(i,1);
+  renderUniv();
+  if(window._saveUnivs) window._saveUnivs();
 }
 </script>
 </body>

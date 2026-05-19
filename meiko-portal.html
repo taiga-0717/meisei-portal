@@ -283,7 +283,7 @@ import { getFirestore, doc, getDoc, collection, getDocs, setDoc, deleteDoc, quer
 
 const app = initializeApp({
   apiKey:"AIzaSyAtNPdgg_HXOs0FXhuK5kTbcAAqARwzdPI",
-  authDomain:"taiga-0717.github.io",
+  authDomain:"meisei-portal.firebaseapp.com",
   projectId:"meisei-portal",
   storageBucket:"meisei-portal.firebasestorage.app",
   messagingSenderId:"617489242359",
@@ -295,12 +295,15 @@ const DOM  = '@meisei.internal';
 
 // ===== Auth監視（ログアウトは絶対にしない） =====
 onAuthStateChanged(auth, async user => {
+  console.log('onAuthStateChanged fired, user:', user ? user.email : 'null');
   document.getElementById('loading').style.display = 'none';
   if(!user){
+    console.log('user is null → showing login screen');
     document.getElementById('login').style.display = 'flex';
     document.getElementById('app').style.display   = 'none';
     return;
   }
+  console.log('user logged in:', user.email);
   document.getElementById('login').style.display = 'none';
   document.getElementById('app').style.display   = 'block';
   window._uid = user.uid;

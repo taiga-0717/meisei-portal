@@ -382,7 +382,7 @@ body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;f
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs, setDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, getDocs, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const cfg = {
   apiKey:"AIzaSyAtNPdgg_HXOs0FXhuK5kTbcAAqARwzdPI",
@@ -439,25 +439,19 @@ onAuthStateChanged(auth, async user => {
     }
   } catch(e){ console.log('生徒情報取得エラー:',e); }
 
-  // お知らせ（リアルタイム）
-  onSnapshot(
-    query(collection(db,'notices'), orderBy('createdAt','desc')),
-    snap => {
-      window._notices = snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderNews(); renderDashNews();
-    },
-    err => console.log('お知らせエラー:',err)
-  );
+  // お知らせ（1回取得）
+  try {
+    const nSnap = await getDocs(query(collection(db,'notices'), orderBy('createdAt','desc')));
+    window._notices = nSnap.docs.map(d=>({id:d.id,...d.data()}));
+    renderNews(); renderDashNews();
+  } catch(e){ console.log('お知らせエラー:',e); }
 
-  // 課題（リアルタイム）
-  onSnapshot(
-    query(collection(db,'tasks'), orderBy('due','asc')),
-    snap => {
-      window._tasks = snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderTasks(); renderDashTasks();
-    },
-    err => console.log('課題エラー:',err)
-  );
+  // 課題（1回取得）
+  try {
+    const tSnap = await getDocs(query(collection(db,'tasks'), orderBy('due','asc')));
+    window._tasks = tSnap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTasks(); renderDashTasks();
+  } catch(e){ console.log('課題エラー:',e); }
 
   // 時間割
   try {

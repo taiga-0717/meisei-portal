@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>明成個別 管理者ポータル</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--cb:#1565C0;--cbd:#0D47A1;--cbp:#E3F2FD;--cbp2:#BBDEFB;--border:#DEE8F5;--bg:#F0F4F8;--card:#fff;--text1:#1A237E;--text2:#546E7A;--text3:#90A4AE}
+body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;font-size:14px;background:var(--bg);color:var(--text1)}
+#loading{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:14px}
+.spinner{width:36px;height:36px;border:3px solid var(--cbp2);border-top-color:var(--cb);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#7B1FA2 0%,#9C27B0 60%,#AB47BC 100%)}
+.login-card{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-mark{width:52px;height:52px;border-radius:14px;background:#F3E5F5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.login-logo-mark svg{width:28px;height:28px;stroke:#7B1FA2;fill:none;stroke-width:2;stroke-linecap:round}
+.login-title{font-size:18px;font-weight:600;color:var(--text1)}
+.login-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.login-badge{background:#F3E5F5;color:#7B1FA2;font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;display:inline-block;margin-top:8px}
+.lf label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;margin-top:14px}
+.lf input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:14px;color:var(--text1);outline:none;transition:border-color .15s}
+.lf input:focus{border-color:#9C27B0}
+.login-btn{width:100%;margin-top:22px;padding:13px;background:#7B1FA2;color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s}
+.login-btn:hover{background:#6A1B9A}
+.login-btn:disabled{background:#90A4AE;cursor:not-allowed}
+.lerr{margin-top:10px;padding:10px 14px;background:#FFEBEE;border-radius:8px;font-size:12px;color:#C62828;display:none}
+.topbar{background:#4A148C;height:56px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.logo-text{color:#fff;font-size:15px;font-weight:600}
+.logo-sub{color:rgba(255,255,255,0.55);font-size:10px;margin-top:1px}
+.admin-badge{background:rgba(255,255,255,0.2);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;margin-left:8px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.icon-btn{background:rgba(255,255,255,0.1);border:none;cursor:pointer;color:#fff;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.icon-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.sidebar{position:fixed;top:56px;left:0;width:212px;height:calc(100vh - 56px);background:#fff;border-right:0.5px solid var(--border);padding:14px 0;overflow-y:auto;display:flex;flex-direction:column}
+.admin-info{padding:10px 14px;background:#F3E5F5;border-radius:10px;margin:0 10px 12px;border:0.5px solid #CE93D8}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:8px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;color:var(--text2);cursor:pointer;border-left:2.5px solid transparent;transition:all .13s;font-size:13px}
+.nav-item:hover{background:#F3E5F5;color:#7B1FA2}
+.nav-item.active{background:#EDE7F6;color:#4A148C;border-left-color:#7B1FA2;font-weight:600}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.nav-cnt{margin-left:auto;font-size:10px;background:#EDE7F6;color:#7B1FA2;padding:2px 7px;border-radius:10px;font-weight:600}
+.divider{height:0.5px;background:var(--border);margin:6px 0}
+.sidebar-bottom{margin-top:auto;padding-top:8px}
+.main{margin-left:212px;padding:24px 24px 48px}
+.page-head{margin-bottom:20px}
+.page-head h1{font-size:20px;font-weight:600;color:var(--text1);margin-bottom:3px}
+.page-head p{font-size:13px;color:var(--text2)}
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
+.mcard{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:15px}
+.mcard-icon{width:32px;height:32px;border-radius:8px;background:#EDE7F6;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.mcard-icon svg{width:16px;height:16px;stroke:#7B1FA2;fill:none;stroke-width:2;stroke-linecap:round}
+.mcard-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.mcard-value{font-size:24px;font-weight:600;color:var(--text1);line-height:1}
+.mcard-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:16px}
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:17px}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ct{font-size:13px;font-weight:600;color:var(--text1);display:flex;align-items:center;gap:7px}
+.ct svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.finput{font-size:13px;padding:9px 12px;border:0.5px solid #B0BEC5;border-radius:8px;background:#F8FAFC;color:var(--text1);outline:none;transition:border-color .13s;width:100%}
+.finput:focus{border-color:#7B1FA2;background:#fff}
+.fgroup{margin-bottom:12px}
+.flabel{font-size:12px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500}
+.frow{display:flex;gap:8px;margin-bottom:10px}
+.btn-main{background:#7B1FA2;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:600;transition:background .13s}
+.btn-main:hover{background:#6A1B9A}
+.btn-main:disabled{background:#90A4AE;cursor:not-allowed}
+.btn-outline{background:#fff;color:#7B1FA2;border:0.5px solid #CE93D8;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-weight:500}
+.btn-outline:hover{background:#F3E5F5}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+.btn-danger{background:#fff;color:#C62828;border:0.5px solid #FFCDD2;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+.btn-danger:hover{background:#FFEBEE}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:9px 12px;background:#F8FAFC;color:var(--text2);font-weight:600;font-size:12px;border-bottom:0.5px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:0.5px solid #EEF2F7;color:var(--text1)}
+.tbl tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px}
+.tag-admin{background:#EDE7F6;color:#4A148C}
+.tag-student{background:#E3F2FD;color:#1565C0}
+.tag-hw{background:#EDE7F6;color:#311B92}
+.tag-imp{background:#FFEBEE;color:#C62828}
+.tag-ex{background:#E3F2FD;color:#0D47A1}
+.tag-ev{background:#E8F5E9;color:#2E7D32}
+.ni{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:0.5px solid #EEF2F7}
+.ni:last-child{border-bottom:none}
+.ni-body{flex:1}
+.ni-title{font-size:13px;font-weight:600;color:var(--text1)}
+.ni-date{font-size:11px;color:var(--text3);margin-top:2px}
+.icon-sm{width:28px;height:28px;border-radius:6px;border:0.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s}
+.icon-sm:hover{background:#FFEBEE;border-color:#FFCDD2}
+.icon-sm svg{width:13px;height:13px;stroke:#C62828;fill:none;stroke-width:2;stroke-linecap:round}
+.tt-grid{display:grid;grid-template-columns:64px repeat(5,1fr);gap:1px;background:#EEF2F7;border-radius:10px;overflow:hidden;font-size:12px}
+.tt-head{background:#F8FAFC;padding:8px;font-weight:600;color:var(--text1);text-align:center}
+.tt-time{background:#F8FAFC;padding:8px;font-size:11px;color:var(--text3)}
+.tt-cell{background:#fff;padding:6px;cursor:pointer;min-height:52px;transition:background .13s}
+.tt-cell:hover{background:#F3E5F5}
+.lesson{border-radius:5px;padding:5px;font-size:11px;line-height:1.5}
+.l-m{background:#E3F2FD;color:#0D47A1}
+.l-e{background:#E8F5E9;color:#1B5E20}
+.l-s{background:#FFF8E1;color:#F57F17}
+.l-j{background:#FCE4EC;color:#880E4F}
+.l-so{background:#EDE7F6;color:#311B92}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:480px}
+.modal-title{font-size:16px;font-weight:600;color:var(--text1);margin-bottom:18px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;padding-top:14px;border-top:0.5px solid var(--border)}
+.toast{position:fixed;bottom:24px;right:24px;background:#1B5E20;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.warn-box{background:#FFF8E1;border:0.5px solid #FFD54F;border-radius:8px;padding:10px 13px;font-size:12px;color:#E65100;display:flex;gap:8px;margin-bottom:14px}
+.warn-box svg{width:15px;height:15px;stroke:#E65100;fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+.student-chk-wrap{max-height:180px;overflow-y:auto;background:#F8FAFC;border:0.5px solid #B0BEC5;border-radius:8px;padding:8px 10px}
+.ap{display:block}.hp{display:none}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text3)">読み込み中...</div></div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="login-title">明成個別 管理者ポータル</div>
+      <div class="login-sub">Administrator Access Only</div>
+      <div class="login-badge">🔐 管理者専用</div>
+    </div>
+    <div class="lf">
+      <label>管理者ID（生徒番号形式）</label>
+      <input type="text" id="login-sid" placeholder="例：ADMIN001" autocomplete="username" style="text-transform:uppercase">
+      <label>パスワード</label>
+      <input type="password" id="login-pw" placeholder="パスワードを入力" autocomplete="current-password">
+      <button class="login-btn" id="login-btn" onclick="doLogin()">管理者としてログイン</button>
+      <div class="lerr" id="lerr"></div>
+    </div>
+  </div>
+</div>
+
+<div id="admin-screen" style="display:none">
+  <div class="topbar">
+    <div class="logo-wrap">
+      <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><div class="logo-text">明成個別 <span class="admin-badge">ADMIN</span></div><div class="logo-sub">管理者ポータル</div></div>
+    </div>
+    <div class="topbar-right">
+      <div class="avatar" id="admin-avatar">AD</div>
+      <button class="icon-btn" onclick="doLogout()" title="ログアウト"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="admin-info">
+      <div style="font-size:11px;color:#7B1FA2;font-weight:600;margin-bottom:2px">管理者ログイン中</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text1)" id="admin-name">--</div>
+    </div>
+    <div class="nav-label">管理メニュー</div>
+    <div class="nav-item active" onclick="switchPage('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>ダッシュボード</div>
+    <div class="nav-item" onclick="switchPage('students')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>生徒登録・管理<span class="nav-cnt" id="s-cnt">0</span></div>
+    <div class="nav-item" onclick="switchPage('attendance')"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>出欠確認</div>
+    <div class="nav-item" onclick="switchPage('news')"><svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4zm0 0a4 4 0 0 1-4-4V9h4"/></svg>お知らせ投稿</div>
+    <div class="nav-item" onclick="switchPage('tasks')"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>課題・宿題登録</div>
+    <div class="nav-item" onclick="switchPage('timetable')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>時間割編集</div>
+    <div class="divider"></div>
+    <div class="sidebar-bottom">
+      <div class="nav-label">アカウント</div>
+      <div class="nav-item" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>ログアウト</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="ap">
+      <div class="page-head"><h1>管理者ダッシュボード</h1><p>明成個別の運営状況</p></div>
+      <div class="cards4">
+        <div class="mcard"><div class="mcard-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="mcard-label">登録生徒数</div><div class="mcard-value" id="dash-s-cnt">0</div><div class="mcard-sub">名</div></div>
+        <div class="mcard"><div class="mcard-icon"><svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/></svg></div><div class="mcard-label">お知らせ件数</div><div class="mcard-value" id="dash-n-cnt">0</div><div class="mcard-sub">公開中</div></div>
+        <div class="mcard"><div class="mcard-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg></div><div class="mcard-label">登録課題数</div><div class="mcard-value" id="dash-t-cnt">0</div><div class="mcard-sub">今月</div></div>
+        <div class="mcard"><div class="mcard-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="mcard-label">今週の授業数</div><div class="mcard-value">15</div><div class="mcard-sub">コマ</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>生徒一覧</div><button class="btn-outline btn-sm" onclick="switchPage('students')">全員見る</button></div>
+          <table class="tbl"><thead><tr><th>生徒番号</th><th>名前</th><th>学年</th></tr></thead><tbody id="dash-s-table"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/></svg>最新のお知らせ</div><button class="btn-outline btn-sm" onclick="switchPage('news')">管理する</button></div>
+          <div id="dash-news"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div id="page-students" class="hp">
+      <div class="page-head"><h1>生徒登録・管理</h1><p>生徒番号とパスワードで一括登録。Firebaseへの自動登録が完結します。</p></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新規生徒を追加</div></div>
+          <div class="warn-box"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>パスワードは登録後に変更できません。忘れた場合はFirebaseコンソールから再設定してください。</div>
+          </div>
+          <div class="frow">
+            <div style="flex:1">
+              <label class="flabel">生徒番号 <span style="color:#C62828">*</span></label>
+              <input class="finput" id="s-sid" placeholder="S2026001" style="text-transform:uppercase">
+            </div>
+            <div style="flex:1.5">
+              <label class="flabel">名前 <span style="color:#C62828">*</span></label>
+              <input class="finput" id="s-name" placeholder="田中 花子">
+            </div>
+          </div>
+          <div class="frow">
+            <div style="flex:1">
+              <label class="flabel">学年</label>
+              <select class="finput" id="s-grade">
+                <option>高校1年生</option><option>高校2年生</option><option>高校3年生</option>
+              </select>
+            </div>
+            <div style="flex:1.5">
+              <label class="flabel">パスワード <span style="color:#C62828">*</span></label>
+              <input class="finput" type="password" id="s-pw" placeholder="6文字以上">
+            </div>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">ロール</label>
+            <select class="finput" id="s-role">
+              <option value="student">生徒</option>
+              <option value="admin">管理者</option>
+            </select>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn-main" id="s-add-btn" onclick="addStudent()">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              登録する
+            </button>
+          </div>
+          <div id="s-err" style="font-size:12px;color:#C62828;margin-top:8px;display:none"></div>
+          <div id="s-ok" style="font-size:12px;color:#2E7D32;margin-top:8px;display:none"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>登録済み生徒</div><span style="font-size:12px;color:var(--text3)" id="s-count-label">0名</span></div>
+          <table class="tbl"><thead><tr><th>生徒番号</th><th>名前</th><th>学年</th><th>ロール</th><th></th></tr></thead><tbody id="s-tbody"></tbody></table>
+          <div id="s-empty" style="text-align:center;padding:24px;color:var(--text3);font-size:13px">生徒がまだ登録されていません</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEWS -->
+    <div id="page-news" class="hp">
+      <div class="page-head"><h1>お知らせ投稿</h1><p>生徒ポータルに即時反映されます</p></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新規投稿</div></div>
+          <div class="fgroup"><label class="flabel">タイトル</label><input class="finput" id="news-title" placeholder="お知らせのタイトルを入力"></div>
+          <div class="fgroup"><label class="flabel">カテゴリ</label>
+            <select class="finput" id="news-cat"><option value="important">重要</option><option value="exam">テスト</option><option value="event">イベント</option></select>
+          </div>
+          <div class="fgroup"><label class="flabel">内容</label><textarea class="finput" id="news-body" rows="4" placeholder="詳細内容を入力..." style="resize:vertical"></textarea></div>
+          <div style="display:flex;justify-content:flex-end"><button class="btn-main" onclick="addNews()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>投稿する</button></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a4 4 0 0 1-4 4z"/></svg>投稿済み一覧</div><span style="font-size:12px;color:var(--text3)" id="news-count-label">0件</span></div>
+          <div id="news-list"><div style="color:var(--text3);font-size:13px;padding:12px 0">読み込み中...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div id="page-tasks" class="hp">
+      <div class="page-head"><h1>課題・宿題登録</h1><p>生徒個人または全員に課題を割り当てられます</p></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新規課題を追加</div></div>
+          <div class="fgroup"><label class="flabel">課題名</label><input class="finput" id="task-name" placeholder="例：数学 問題集 p.45〜50"></div>
+          <div class="frow">
+            <div style="flex:1"><label class="flabel">科目</label>
+              <select class="finput" id="task-subj"><option>数学</option><option>英語</option><option>国語</option><option>化学</option><option>物理</option><option>生物</option><option>社会</option><option>その他</option></select>
+            </div>
+            <div style="flex:1"><label class="flabel">提出期限</label><input class="finput" type="date" id="task-due"></div>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">対象生徒</label>
+            <div style="margin-bottom:8px">
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:500;padding:8px;background:#F8FAFC;border-radius:7px;border:0.5px solid #DEE8F5">
+                <input type="checkbox" id="task-all" onchange="toggleAll(this.checked)" style="width:15px;height:15px;accent-color:#7B1FA2">
+                全員に割り当てる
+                <span style="margin-left:auto;font-size:11px;color:var(--text3)" id="sel-cnt">0名選択中</span>
+              </label>
+            </div>
+            <div class="student-chk-wrap" id="student-chk-list"><div style="font-size:12px;color:var(--text3);padding:4px">生徒を読み込み中...</div></div>
+          </div>
+          <div class="fgroup"><label class="flabel">メモ（任意）</label><input class="finput" id="task-memo" placeholder="追加の指示があれば"></div>
+          <div style="display:flex;justify-content:flex-end"><button class="btn-main" onclick="addTask()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>登録する</button></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>登録済み課題</div><span style="font-size:12px;color:var(--text3)" id="task-count-label">0件</span></div>
+          <div id="task-list"><div style="color:var(--text3);font-size:13px;padding:12px 0">読み込み中...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="page-attendance" class="hp">
+      <div class="page-head"><h1>出欠確認</h1><p>日付と時間帯を選んで出欠を記録</p></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>日付・時間を選択</div></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input class="finput" type="date" id="att-date" style="width:180px" onchange="loadAttendance()">
+          <select class="finput" id="att-time" style="width:160px" onchange="loadAttendance()">
+            <option value="">時間を選択</option>
+          </select>
+          <div style="font-size:12px;color:var(--text3)" id="att-info"></div>
+        </div>
+      </div>
+      <div class="card" id="att-list-card" style="display:none">
+        <div class="ch">
+          <div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>出欠一覧</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-outline btn-sm" onclick="markAll('present')">全員出席</button>
+            <span style="font-size:12px;color:var(--text3);align-self:center" id="att-summary"></span>
+          </div>
+        </div>
+        <div id="att-student-list"></div>
+      </div>
+      <div id="att-empty" style="text-align:center;padding:40px;color:var(--text3);font-size:13px;display:none">
+        この時間に授業がある生徒はいません
+      </div>
+    </div>
+    <div id="page-timetable" class="hp">
+      <div class="page-head"><h1>時間割編集</h1><p>生徒を選んでセルをクリックして編集</p></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="ch"><div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>編集する生徒を選択</div></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="finput" id="tt-student-select" onchange="onSelectStudent(this.value)" style="flex:1;max-width:300px">
+            <option value="">生徒を選んでください</option>
+          </select>
+          <div id="tt-selected-name" style="font-size:13px;color:var(--text2)"></div>
+        </div>
+      </div>
+      <div class="card" id="tt-editor" style="display:none">
+        <div class="ch">
+          <div class="ct"><svg style="stroke:#7B1FA2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>週間時間割</div>
+          <button class="btn-main" onclick="saveTimetable()" style="padding:7px 14px;font-size:12px">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            保存する
+          </button>
+        </div>
+        <div class="tt-grid" id="tt-grid"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:0.5px solid #EEF2F7;font-size:11px">
+          <span style="color:var(--text3)">教科：</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#E3F2FD;border-radius:2px;margin-right:3px;vertical-align:middle"></span>数学</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#E8F5E9;border-radius:2px;margin-right:3px;vertical-align:middle"></span>英語</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#FFF8E1;border-radius:2px;margin-right:3px;vertical-align:middle"></span>化学</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#FCE4EC;border-radius:2px;margin-right:3px;vertical-align:middle"></span>国語</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#EDE7F6;border-radius:2px;margin-right:3px;vertical-align:middle"></span>社会</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 時間割編集Modal -->
+<div class="modal-bg" id="tt-modal">
+  <div class="modal">
+    <div class="modal-title">授業を編集</div>
+    <div class="fgroup"><label class="flabel">開始時刻 <span style="color:#C62828">*</span></label>
+      <input class="finput" id="tt-time" placeholder="例：13:00" style="width:140px">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">HH:MM形式で入力（例：13:00、14:30）</div>
+    </div>
+    <div class="fgroup"><label class="flabel">科目名</label>
+      <select class="finput" id="tt-subj">
+        <option value="">（なし）</option>
+        <option value="授業|m">授業</option>
+        <option value="ミーティング|so">ミーティング</option>
+        <option value="数学Ⅱ・B|m">数学Ⅱ・B</option>
+        <option value="数学IA|m">数学IA</option>
+        <option value="英語R|e">英語（リーディング）</option>
+        <option value="英語W|e">英語（ライティング）</option>
+        <option value="化学|s">化学</option>
+        <option value="物理|s">物理</option>
+        <option value="生物|e">生物</option>
+        <option value="国語|j">国語</option>
+        <option value="社会|so">社会</option>
+        <option value="その他|m">その他</option>
+      </select>
+    </div>
+    <div class="fgroup"><label class="flabel">担当講師</label><input class="finput" id="tt-teacher" placeholder="例：山田先生"></div>
+    <div class="fgroup"><label class="flabel">教室</label><input class="finput" id="tt-room" placeholder="例：第1教室"></div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">キャンセル</button>
+      <button class="btn-main" onclick="saveTTCell()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-msg">保存しました</span></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtNPdgg_HXOs0FXhuK5kTbcAAqARwzdPI",
+  authDomain: "meisei-portal.firebaseapp.com",
+  projectId: "meisei-portal",
+  storageBucket: "meisei-portal.firebasestorage.app",
+  messagingSenderId: "617489242359",
+  appId: "1:617489242359:web:6982ec1e6c8474fed11bf2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+window._db = db;
+window._dbRef = db;
+window._auth = auth;
+window.getDoc = getDoc;
+window.setDoc = setDoc;
+window.doc = doc;
+
+const DOMAIN = '@meisei.internal';
+const sidToEmail = sid => sid.trim().toUpperCase() + DOMAIN;
+
+// Auth監視
+onAuthStateChanged(auth, async user => {
+  document.getElementById('loading').style.display = 'none';
+  if(!user){
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-screen').style.display = 'none';
+    return;
+  }
+  // ロール確認
+  try {
+    const snap = await getDoc(doc(db,'students',user.uid));
+    if(!snap.exists() || snap.data().role !== 'admin'){
+      await signOut(auth);
+      const err = document.getElementById('lerr');
+      err.style.display='block'; err.textContent='管理者権限がありません。生徒用ポータルをご利用ください。';
+      return;
+    }
+    const d = snap.data();
+    const sid = user.email.replace(DOMAIN,'');
+    document.getElementById('admin-name').textContent = d.name || sid;
+    document.getElementById('admin-avatar').textContent = (d.name||sid).slice(0,2);
+  } catch(e) {
+    const sid = user.email.replace(DOMAIN,'');
+    document.getElementById('admin-name').textContent = sid;
+    document.getElementById('admin-avatar').textContent = sid.slice(0,2);
+  }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  window._uid = user.uid;
+
+  await loadStudents();
+  await loadNews();
+  await loadTasks();
+  renderTT();
+  renderStudentCheckboxes();
+});
+
+// ログイン
+window.doLogin = async function(){
+  const sid = document.getElementById('login-sid').value.trim().toUpperCase();
+  const pw = document.getElementById('login-pw').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('lerr');
+  if(!sid||!pw){ err.style.display='block'; err.textContent='IDとパスワードを入力してください'; return; }
+  btn.disabled=true; btn.textContent='ログイン中...'; err.style.display='none';
+  try {
+    await signInWithEmailAndPassword(auth, sidToEmail(sid), pw);
+  } catch(e){
+    let msg='ログインに失敗しました';
+    if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'||e.code==='auth/user-not-found') msg='IDまたはパスワードが正しくありません';
+    err.style.display='block'; err.textContent=msg;
+    btn.disabled=false; btn.textContent='管理者としてログイン';
+  }
+};
+window.doLogout = () => signOut(auth).then(()=>location.reload());
+document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
+
+// ===== 生徒管理 =====
+window._students = [];
+
+window.loadStudents = async function(){
+  try {
+    onSnapshot(collection(db,'students'), snap=>{
+      window._students = snap.docs.map(d=>({uid:d.id,...d.data()}));
+      renderStudents();
+      renderStudentCheckboxes();
+    });
+  } catch(e){ console.log(e); }
+};
+
+// 生徒登録：Authentication + Firestore を同時に処理
+window.addStudent = async function(){
+  const sid = document.getElementById('s-sid').value.trim().toUpperCase();
+  const name = document.getElementById('s-name').value.trim();
+  const grade = document.getElementById('s-grade').value;
+  const pw = document.getElementById('s-pw').value;
+  const role = document.getElementById('s-role').value;
+  const errEl = document.getElementById('s-err');
+  const okEl = document.getElementById('s-ok');
+  const btn = document.getElementById('s-add-btn');
+
+  errEl.style.display='none'; okEl.style.display='none';
+  if(!sid||!name||!pw){ errEl.style.display='block'; errEl.textContent='生徒番号・名前・パスワードを入力してください'; return; }
+  if(pw.length < 6){ errEl.style.display='block'; errEl.textContent='パスワードは6文字以上にしてください'; return; }
+
+  btn.disabled=true; btn.textContent='登録中...';
+
+  const currentUser = auth.currentUser;
+  const email = sidToEmail(sid);
+
+  try {
+    // Authenticationにアカウント作成
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    const newUid = cred.user.uid;
+
+    // 管理者セッションが切れないよう即再ログイン（管理者のuidを保持）
+    // → 新規アカウント作成後、currentUserが切り替わるのでFirestoreへの書き込みは先に完了させる
+    await setDoc(doc(db,'students',newUid), {name, grade, role, sid, createdAt: serverTimestamp()});
+
+    // 元の管理者アカウントに戻すために再ログイン（管理者のcredはセッション継続）
+    // createUserWithEmailAndPasswordは既存ログインを切り替えるため、管理者を再ログインさせる
+    // ※ シンプルな実装: 登録後は管理者に再ログインを促すのが安全
+    window._students.push({uid:newUid, name, grade, role, sid});
+    renderStudents();
+    renderStudentCheckboxes();
+
+    ['s-sid','s-name','s-pw'].forEach(id=>{ document.getElementById(id).value=''; });
+    okEl.style.display='block';
+    okEl.textContent='✓ '+name+'（'+sid+'）を登録しました。セキュリティのため再ログインしてください。';
+    showToast(name+'さんを登録しました');
+
+    // 管理者は再ログインが必要（createUserが現在のセッションを切り替えるため）
+    setTimeout(()=>{ signOut(auth); }, 3000);
+
+  } catch(e){
+    let msg = '登録に失敗しました: '+e.message;
+    if(e.code==='auth/email-already-in-use') msg = '生徒番号「'+sid+'」は既に使用されています';
+    if(e.code==='auth/weak-password') msg = 'パスワードが弱すぎます（6文字以上）';
+    errEl.style.display='block'; errEl.textContent=msg;
+  }
+  btn.disabled=false; btn.textContent='登録する';
+};
+
+window.delStudent = async function(uid){
+  if(!confirm('本当に削除しますか？（Authenticationのアカウントは別途Firebaseコンソールから削除してください）')) return;
+  window._students = window._students.filter(s=>s.uid!==uid);
+  try { await deleteDoc(doc(db,'students',uid)); } catch(e) {}
+  renderStudents(); renderStudentCheckboxes();
+  showToast('Firestoreから削除しました');
+};
+
+function renderStudents(){
+  const tbody = document.getElementById('s-tbody');
+  const lbl = document.getElementById('s-count-label');
+  const dashCnt = document.getElementById('dash-s-cnt');
+  const navCnt = document.getElementById('s-cnt');
+  const empty = document.getElementById('s-empty');
+
+  if(lbl) lbl.textContent = window._students.length+'名';
+  if(dashCnt) dashCnt.textContent = window._students.length;
+  if(navCnt) navCnt.textContent = window._students.length;
+
+  if(!tbody) return;
+
+  if(!window._students.length){
+    tbody.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+
+  // データがあれば必ずemptyを隠す
+  if(empty) empty.style.display='none';
+
+  // 生徒番号順に並び替え
+  const sorted = window._students.slice().sort((a,b)=>{
+    const sa = (a.sid||'').toUpperCase();
+    const sb = (b.sid||'').toUpperCase();
+    return sa < sb ? -1 : sa > sb ? 1 : 0;
+  });
+
+  tbody.innerHTML = sorted.map(s=>
+    '<tr>'+
+    '<td style="font-family:monospace;font-weight:600;color:#7B1FA2">'+(s.sid||'--')+'</td>'+
+    '<td style="font-weight:600">'+(s.name||'')+'</td>'+
+    '<td>'+(s.grade||'')+'</td>'+
+    '<td><span class="tag '+(s.role==='admin'?'tag-admin':'tag-student')+'">'+(s.role==='admin'?'管理者':'生徒')+'</span></td>'+
+    '<td><button class="btn-danger" onclick="delStudent(\''+s.uid+'\')">削除</button></td>'+
+    '</tr>'
+  ).join('');
+
+  // ダッシュボードテーブル（番号順）
+  const dashT = document.getElementById('dash-s-table');
+  if(dashT) dashT.innerHTML = sorted.slice(0,5).map(s=>
+    '<tr><td style="font-family:monospace;font-size:12px;color:#7B1FA2">'+(s.sid||'--')+'</td><td style="font-weight:600">'+s.name+'</td><td>'+s.grade+'</td></tr>'
+  ).join('');
+}
+
+function renderStudentCheckboxes(){
+  const container = document.getElementById('student-chk-list');
+  if(!container) return;
+  const students = window._students
+    .filter(s=>s.role!=='admin')
+    .slice()
+    .sort((a,b)=>{
+      const sa=(a.sid||'').toUpperCase();
+      const sb=(b.sid||'').toUpperCase();
+      return sa<sb?-1:sa>sb?1:0;
+    });
+  if(!students.length){ container.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px">生徒がまだ登録されていません</div>'; return; }
+  container.innerHTML = students.map(s=>
+    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 4px;border-radius:6px;transition:background .12s" onmouseover="this.style.background=\'#F3E5F5\'" onmouseout="this.style.background=\'transparent\'">'+
+      '<input type="checkbox" class="s-chk" data-uid="'+s.uid+'" data-name="'+s.name+'" onchange="updateSelCnt()" style="width:15px;height:15px;accent-color:#7B1FA2">'+
+      '<div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text1)">'+s.name+'</div>'+
+      '<div style="font-size:11px;color:var(--text3)">'+(s.sid||'')+'　'+s.grade+'</div></div>'+
+    '</label>'
+  ).join('');
+  updateSelCnt();
+}
+
+window.toggleAll = function(checked){
+  document.querySelectorAll('.s-chk').forEach(c=>{ c.checked=checked; });
+  updateSelCnt();
+};
+window.updateSelCnt = function(){
+  const sel = document.querySelectorAll('.s-chk:checked').length;
+  const total = document.querySelectorAll('.s-chk').length;
+  const lbl = document.getElementById('sel-cnt');
+  if(lbl) lbl.textContent = sel===total&&total>0?'全員（'+total+'名）':sel+'名選択中';
+  const allChk = document.getElementById('task-all');
+  if(allChk) allChk.checked = sel===total&&total>0;
+};
+
+// ===== お知らせ =====
+window._news = [];
+window.loadNews = async function(){
+  try {
+    onSnapshot(query(collection(db,'notices'), orderBy('createdAt','desc')), snap=>{
+      window._news = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderNewsList();
+    });
+  } catch(e) {}
+};
+
+window.addNews = async function(){
+  const title = document.getElementById('news-title').value.trim();
+  const cat = document.getElementById('news-cat').value;
+  const body = document.getElementById('news-body').value.trim();
+  if(!title){ showToast('タイトルを入力してください','warn'); return; }
+  const date = new Date().toISOString().slice(0,10);
+  try {
+    await addDoc(collection(db,'notices'),{title,cat,body,date,createdAt:serverTimestamp()});
+    document.getElementById('news-title').value='';
+    document.getElementById('news-body').value='';
+    showToast('お知らせを投稿しました');
+  } catch(e){ showToast('投稿に失敗しました','warn'); }
+};
+
+window.delNews = async function(id){
+  try { await deleteDoc(doc(db,'notices',id)); showToast('削除しました'); } catch(e) {}
+};
+
+function renderNewsList(){
+  const el = document.getElementById('news-list');
+  const lbl = document.getElementById('news-count-label');
+  const dashEl = document.getElementById('dash-news');
+  const dashCnt = document.getElementById('dash-n-cnt');
+  if(lbl) lbl.textContent = window._news.length+'件';
+  if(dashCnt) dashCnt.textContent = window._news.length;
+  const cats={important:'重要',exam:'テスト',event:'イベント'};
+  const tagcls={important:'tag-imp',exam:'tag-ex',event:'tag-ev'};
+  if(el){
+    if(!window._news.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:12px 0">投稿がありません</div>'; }
+    else el.innerHTML=window._news.map(n=>'<div class="ni">'+
+      '<div class="ni-body">'+
+        '<span class="tag '+(tagcls[n.cat||'event']||'tag-ev')+'" style="margin-bottom:4px;display:inline-block">'+(cats[n.cat]||'イベント')+'</span>'+
+        '<div class="ni-title">'+n.title+'</div>'+
+        '<div class="ni-date">'+(n.date||'')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-shrink:0"><div class="icon-sm" onclick="delNews(\''+n.id+'\')" title="削除"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div></div>'+
+    '</div>').join('');
+  }
+  if(dashEl) dashEl.innerHTML = (window._news.slice(0,3)||[]).map(n=>
+    '<div class="ni"><span class="tag '+(tagcls[n.cat||'event']||'tag-ev')+'" style="margin-right:6px">'+(cats[n.cat]||'イベント')+'</span>'+
+    '<span style="font-size:13px;font-weight:600">'+n.title+'</span>'+
+    '<div class="ni-date">'+(n.date||'')+'</div></div>'
+  ).join('');
+}
+
+// ===== 課題 =====
+window._tasks = [];
+window.loadTasks = async function(){
+  try {
+    onSnapshot(query(collection(db,'tasks'), orderBy('due','asc')), snap=>{
+      window._tasks = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderTaskList();
+    });
+  } catch(e) {}
+};
+
+window.addTask = async function(){
+  const name = document.getElementById('task-name').value.trim();
+  const subj = document.getElementById('task-subj').value;
+  const due = document.getElementById('task-due').value;
+  const memo = document.getElementById('task-memo').value.trim();
+  if(!name||!due){ showToast('課題名と期限を入力してください','warn'); return; }
+
+  const checked = document.querySelectorAll('.s-chk:checked');
+  const allStudents = window._students.filter(s=>s.role!=='admin');
+  const isAll = checked.length===allStudents.length&&allStudents.length>0;
+  const uids = Array.from(checked).map(c=>c.getAttribute('data-uid'));
+  const names = Array.from(checked).map(c=>c.getAttribute('data-name'));
+
+  if(!isAll&&uids.length===0){ showToast('対象生徒を1名以上選択してください','warn'); return; }
+
+  const target = isAll?'全員':names.join('、');
+  const targetUids = isAll?['all']:uids;
+
+  try {
+    await addDoc(collection(db,'tasks'),{name,subj,due,memo,target,targetUids,createdAt:serverTimestamp()});
+    document.getElementById('task-name').value='';
+    document.getElementById('task-due').value='';
+    document.getElementById('task-memo').value='';
+    document.querySelectorAll('.s-chk').forEach(c=>{ c.checked=false; });
+    document.getElementById('task-all').checked=false;
+    updateSelCnt();
+    showToast('課題を登録しました（対象：'+target+'）');
+  } catch(e){ showToast('登録に失敗しました','warn'); }
+};
+
+window.delTask = async function(id){
+  try { await deleteDoc(doc(db,'tasks',id)); showToast('削除しました'); } catch(e) {}
+};
+
+function renderTaskList(){
+  const el = document.getElementById('task-list');
+  const lbl = document.getElementById('task-count-label');
+  const cnt = document.getElementById('dash-t-cnt');
+  if(lbl) lbl.textContent = window._tasks.length+'件';
+  if(cnt) cnt.textContent = window._tasks.length;
+  if(!el) return;
+  if(!window._tasks.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:12px 0">課題がありません</div>'; return; }
+  el.innerHTML = window._tasks.map(t=>{
+    const isAll=!t.targetUids||t.targetUids[0]==='all';
+    return '<div class="ni">'+
+      '<div class="ni-body">'+
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+          '<span class="tag tag-hw">'+t.subj+'</span>'+
+          '<span style="font-size:11px;color:var(--text3)">期限：'+t.due+'</span>'+
+        '</div>'+
+        '<div class="ni-title">'+t.name+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);margin-top:4px">対象：'+(isAll?'<span class="tag tag-student">全員</span>':t.target)+'</div>'+
+        (t.memo?'<div style="font-size:11px;color:var(--text3)">'+t.memo+'</div>':'')+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-shrink:0"><div class="icon-sm" onclick="delTask(\''+t.id+'\')" title="削除"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div></div>'+
+    '</div>';
+  }).join('');
+}
+</script>
+
+<script>
+function switchPage(p){
+  ['dashboard','students','attendance','news','tasks','timetable'].forEach(id=>{
+    const el = document.getElementById('page-'+id);
+    if(el) el.className=(p===id?'ap':'hp');
+  });
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active',(el.getAttribute('onclick')||'').includes("'"+p+"'"));
+  });
+  if(p==='students'){ renderStudents(); renderStudentCheckboxes(); }
+  if(p==='timetable') refreshTTStudentSelect();
+  if(p==='attendance') initAttendance();
+}
+
+// ===== 時間割（生徒個別・時間自由入力対応） =====
+const DAYS=['月','火','水','木','金'];
+const SCLS={m:'l-m',e:'l-e',s:'l-s',j:'l-j',so:'l-so'};
+window._tt={};
+window._editCell=null;
+window._ttUid=null;
+
+function refreshTTStudentSelect(){
+  const sel = document.getElementById('tt-student-select');
+  if(!sel) return;
+  const students = window._students.filter(s=>s.role!=='admin')
+    .slice().sort((a,b)=>((a.sid||'')<(b.sid||'')?-1:1));
+  sel.innerHTML = '<option value="">生徒を選んでください</option>'+
+    students.map(s=>'<option value="'+s.uid+'">'+s.sid+' - '+s.name+'</option>').join('');
+}
+
+window.onSelectStudent = async function(uid){
+  if(!uid){
+    document.getElementById('tt-editor').style.display='none';
+    window._ttUid=null; window._tt={};
+    return;
+  }
+  window._ttUid = uid;
+  const s = window._students.find(s=>s.uid===uid);
+  document.getElementById('tt-selected-name').textContent = s ? s.name+'さんの時間割を編集中' : '';
+  document.getElementById('tt-editor').style.display='block';
+  try {
+    const ref = doc(window._dbRef,'timetables',uid);
+    const docSnap = await getDoc(ref);
+    window._tt = docSnap.exists() ? (docSnap.data().cells||{}) : {};
+  } catch(e){ window._tt={}; }
+  renderTT();
+};
+
+function renderTT(){
+  const grid=document.getElementById('tt-grid');
+  if(!grid) return;
+
+  // 使われているすべての時間を収集してソート
+  const usedTimes = [...new Set(
+    Object.values(window._tt).map(c=>c.time||'').filter(Boolean)
+  )].sort();
+
+  let html='<div class="tt-head" style="background:#F8FAFC;font-size:11px;padding:6px"></div>';
+  DAYS.forEach(d=>{ html+='<div class="tt-head">'+d+'</div>'; });
+
+  if(!usedTimes.length){
+    // 空のグリッドを1行だけ表示
+    html+='<div class="tt-time" style="font-size:11px;color:var(--text3)">未設定</div>';
+    DAYS.forEach((_,di)=>{
+      html+='<div class="tt-cell" onclick="openTT(\''+di+'-new\')" title="クリックで追加" style="min-height:44px;display:flex;align-items:center;justify-content:center">'+
+        '<span style="font-size:18px;color:#DEE8F5">＋</span></div>';
+    });
+  } else {
+    usedTimes.forEach(t=>{
+      html+='<div class="tt-time" style="font-size:11px">'+t+'</div>';
+      DAYS.forEach((_,di)=>{
+        const key = di+'-'+t;
+        const cell = window._tt[key];
+        html+='<div class="tt-cell" onclick="openTT(\''+key+'\')" style="min-height:44px">'+
+          (cell?'<div class="lesson '+SCLS[cell.key]+'">'+cell.name+'<br><span style="opacity:.7">'+cell.teacher+'</span></div>':
+          '<span style="font-size:16px;color:#EEF2F7">＋</span>')+
+        '</div>';
+      });
+    });
+  }
+
+  // 新しい時間帯を追加するボタン行
+  html+='<div style="grid-column:1/-1;padding:8px 0;border-top:0.5px solid #EEF2F7;display:flex;justify-content:flex-end" class="tt-cell"></div>';
+  grid.innerHTML=html;
+
+  // 「新しい時間帯を追加」ボタンを最後の行に追加
+  const addBtn = document.createElement('div');
+  addBtn.style.cssText='grid-column:1/-1;padding:6px 0';
+  addBtn.innerHTML='<button class="btn-outline btn-sm" onclick="openTT(\'new\')" style="width:100%">＋ 新しい時間帯を追加</button>';
+
+  // グリッドの最後に追加
+  const lastCell = grid.lastElementChild;
+  lastCell.appendChild(document.createElement('span')); // placeholder
+}
+
+window.openTT=function(key){
+  if(!window._ttUid){ showToast('先に生徒を選択してください','warn'); return; }
+  window._editCell=key;
+
+  // keyが「di-time」形式 or「new」
+  let di='', time='';
+  if(key && key!=='new' && !key.endsWith('-new')){
+    const parts = key.split('-');
+    di = parts[0];
+    time = parts.slice(1).join('-');
+  }
+  const c = window._tt[key];
+  document.getElementById('tt-time').value = c ? (c.time||time||'') : (time||'');
+  document.getElementById('tt-subj').value = c ? c.name+'|'+c.key : '';
+  document.getElementById('tt-teacher').value = c ? c.teacher : '';
+  document.getElementById('tt-room').value = c ? c.room : '';
+  document.getElementById('tt-modal').classList.add('show');
+};
+
+window.closeModal=function(){ document.getElementById('tt-modal').classList.remove('show'); };
+
+window.saveTTCell=function(){
+  const timeVal = document.getElementById('tt-time').value.trim();
+  const val = document.getElementById('tt-subj').value;
+  const teacher = document.getElementById('tt-teacher').value.trim();
+  const room = document.getElementById('tt-room').value.trim();
+
+  if(!timeVal){ showToast('時刻を入力してください','warn'); return; }
+
+  // keyの再構築：曜日インデックス-時刻
+  let di = '';
+  if(window._editCell && window._editCell!=='new' && !window._editCell.endsWith('-new')){
+    di = window._editCell.split('-')[0];
+  }
+  // 新規の場合はdayインデックスが不明なので0〜4を選ばせる必要がある
+  // ただしグリッドのセルクリックからはdayIndexが取れている
+  if(di==='' && window._editCell){
+    const m = window._editCell.match(/^(\d+)/);
+    if(m) di = m[1];
+  }
+
+  if(di === '' || di === undefined){
+    showToast('セルをクリックして曜日を選択してください','warn');
+    closeModal(); return;
+  }
+
+  const newKey = di+'-'+timeVal;
+
+  // 古いキーを削除
+  if(window._editCell !== newKey && window._tt[window._editCell]){
+    delete window._tt[window._editCell];
+  }
+
+  if(!val){ delete window._tt[newKey]; }
+  else {
+    const p=val.split('|');
+    window._tt[newKey]={name:p[0], key:p[1]||'m', teacher, room, time:timeVal};
+  }
+  closeModal(); renderTT();
+};
+
+window.saveTimetable = async function(){
+  if(!window._ttUid){ showToast('生徒が選択されていません','warn'); return; }
+  try {
+    await setDoc(doc(window._dbRef,'timetables',window._ttUid),{cells:window._tt,updatedAt:new Date().toISOString()});
+    showToast('時間割を保存しました');
+  } catch(e){ showToast('保存に失敗しました: '+e.message,'warn'); }
+};
+
+// ===== 出欠確認 =====
+window._attData = {};
+
+function initAttendance(){
+  // 今日の日付をデフォルトにセット
+  const today = new Date().toISOString().slice(0,10);
+  const dateEl = document.getElementById('att-date');
+  if(dateEl && !dateEl.value) dateEl.value = today;
+  updateAttTimeOptions();
+}
+
+function updateAttTimeOptions(){
+  const sel = document.getElementById('att-time');
+  if(!sel) return;
+  // 全生徒の時間割から時間一覧を収集
+  const times = new Set();
+  window._students.filter(s=>s.role!=='admin').forEach(s=>{
+    // 時間割データはキャッシュから（_allTTはここでは未取得なので選択肢は手入力も可）
+    Object.values(window._tt||{}).forEach(c=>{ if(c.time) times.add(c.time); });
+  });
+  const sorted = [...times].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">時間を選択</option>'+
+    sorted.map(t=>'<option value="'+t+'"'+(t===cur?' selected':'')+'>'+t+'</option>').join('');
+  if(!sorted.length){
+    sel.innerHTML += '<option disabled>（時間割を先に登録してください）</option>';
+  }
+}
+
+window.loadAttendance = async function(){
+  const date = document.getElementById('att-date').value;
+  const time = document.getElementById('att-time').value;
+  const card = document.getElementById('att-list-card');
+  const empty = document.getElementById('att-empty');
+  const info = document.getElementById('att-info');
+
+  if(!date||!time){ card.style.display='none'; empty.style.display='none'; return; }
+
+  // その日付・時間に授業がある生徒を全員の時間割から抽出
+  const dayIdx = new Date(date).getDay()-1; // 0=月〜4=金
+  if(dayIdx<0||dayIdx>4){
+    info.textContent='土日は授業がありません';
+    card.style.display='none'; empty.style.display='block'; return;
+  }
+
+  // 全生徒の時間割をFirestoreから取得
+  const studentsWithLesson = [];
+  for(const s of window._students.filter(s=>s.role!=='admin')){
+    try {
+      const snap = await getDoc(doc(window._dbRef,'timetables',s.uid));
+      if(snap.exists()){
+        const cells = snap.data().cells||{};
+        const cellKey = dayIdx+'-'+time;
+        if(cells[cellKey]){
+          studentsWithLesson.push({...s, lesson:cells[cellKey]});
+        }
+      }
+    } catch(e){}
+  }
+
+  info.textContent = studentsWithLesson.length+'名が授業予定';
+
+  if(!studentsWithLesson.length){
+    card.style.display='none'; empty.style.display='block'; return;
+  }
+  card.style.display='block'; empty.style.display='none';
+
+  // 既存の出欠データを読み込み
+  try {
+    const attKey = date+'_'+time.replace(':','-');
+    const snap = await getDoc(doc(window._dbRef,'attendance',attKey));
+    window._attData = snap.exists() ? (snap.data().records||{}) : {};
+  } catch(e){ window._attData={}; }
+
+  renderAttList(studentsWithLesson, date, time);
+};
+
+function renderAttList(students, date, time){
+  const el = document.getElementById('att-student-list');
+  const sum = document.getElementById('att-summary');
+  if(!el) return;
+
+  const present = students.filter(s=>window._attData[s.uid]==='present').length;
+  const late = students.filter(s=>window._attData[s.uid]==='late').length;
+  const absent = students.filter(s=>window._attData[s.uid]==='absent').length;
+  sum.textContent = '出席'+present+' 遅刻'+late+' 欠席'+absent;
+
+  const statusLabel = {present:'出席',late:'遅刻',absent:'欠席'};
+  const statusColor = {present:'#2E7D32',late:'#E65100',absent:'#C62828'};
+  const statusBg = {present:'#E8F5E9',late:'#FFF8E1',absent:'#FFEBEE'};
+
+  el.innerHTML = students.map(s=>{
+    const cur = window._attData[s.uid]||'';
+    const btns = ['present','late','absent'].map(st=>{
+      const active = cur===st;
+      return '<button onclick="setAtt(\''+s.uid+'\',\''+st+'\',\''+date+'\',\''+time+'\')" style="'+
+        'padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid;'+
+        'background:'+(active?statusBg[st]:'#fff')+';'+
+        'color:'+(active?statusColor[st]:'#90A4AE')+';'+
+        'border-color:'+(active?statusColor[st]:'#DEE8F5')+';'+
+        'transition:all .13s">'+statusLabel[st]+'</button>';
+    }).join('');
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #EEF2F7">'+
+      '<div style="width:36px;height:36px;border-radius:50%;background:#EDE7F6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#7B1FA2;flex-shrink:0">'+s.name.slice(0,2)+'</div>'+
+      '<div style="flex:1">'+
+        '<div style="font-size:13px;font-weight:600;color:var(--text1)">'+s.name+'</div>'+
+        '<div style="font-size:11px;color:var(--text3)">'+s.sid+' / '+s.grade+' / '+s.lesson.name+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px">'+btns+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+window.setAtt = async function(uid, status, date, time){
+  window._attData[uid] = status;
+  // Firestoreに保存
+  const attKey = date+'_'+time.replace(':','-');
+  try {
+    await setDoc(doc(window._dbRef,'attendance',attKey),{
+      date, time, records: window._attData, updatedAt: new Date().toISOString()
+    });
+    showToast('出欠を記録しました');
+  } catch(e){ showToast('保存に失敗しました','warn'); }
+  // 表示を再取得
+  await loadAttendance();
+};
+
+window.markAll = async function(status){
+  const date = document.getElementById('att-date').value;
+  const time = document.getElementById('att-time').value;
+  if(!date||!time) return;
+  const dayIdx = new Date(date).getDay()-1;
+  for(const s of window._students.filter(s=>s.role!=='admin')){
+    try {
+      const snap = await getDoc(doc(window._dbRef,'timetables',s.uid));
+      if(snap.exists()){
+        const cells = snap.data().cells||{};
+        if(cells[dayIdx+'-'+time]) window._attData[s.uid]=status;
+      }
+    } catch(e){}
+  }
+  const attKey = date+'_'+time.replace(':','-');
+  try {
+    await setDoc(doc(window._dbRef,'attendance',attKey),{
+      date, time, records:window._attData, updatedAt:new Date().toISOString()
+    });
+    showToast('全員を出席にしました');
+  } catch(e){}
+  await loadAttendance();
+};
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  const m=document.getElementById('toast-msg');
+  m.textContent=msg;
+  t.style.background=type==='warn'?'#E65100':'#1B5E20';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') window.closeModal&&window.closeModal(); });
+</script>
+</body>
+</html>

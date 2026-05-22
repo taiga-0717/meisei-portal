@@ -437,23 +437,20 @@ function renderDash(){
   // 今日の授業
   const el = document.getElementById('d-tt');
   if(el){
-    const todayIdx = new Date().getDay()-1;
-    if(todayIdx<0||todayIdx>4){
+    const todayDow = new Date().getDay();
+    const todayIdx = todayDow===0 ? 6 : todayDow-1; // 0=月〜6=日
+    const lessons = Object.values(window._tt)
+      .filter(v=>v&&v.name&&v.day===todayIdx)
+      .sort((a,b)=>(a.time||'')<(b.time||'')?-1:1);
+    if(!lessons.length){
       el.innerHTML = '<div class="empty">今日は授業がありません</div>';
     } else {
-      const lessons = Object.entries(window._tt)
-        .filter(([k,v])=>k.startsWith(todayIdx+'-')&&v&&v.name)
-        .map(([k,v])=>v).sort((a,b)=>(a.time||'')<(b.time||'')?-1:1);
-      if(!lessons.length){
-        el.innerHTML = '<div class="empty">今日は授業がありません</div>';
-      } else {
-        const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
-        el.innerHTML = lessons.map(l=>'<div class="ti">'+
-          '<div class="les '+(SCLS[l.key]||'lm')+'" style="min-width:50px;text-align:center">'+l.time+'</div>'+
-          '<div><div style="font-size:13px;font-weight:600;color:var(--t1)">'+l.name+'</div>'+
-          '<div style="font-size:11px;color:var(--t3)">'+(l.teacher||'')+'</div></div>'+
-        '</div>').join('');
-      }
+      const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
+      el.innerHTML = lessons.map(l=>'<div class="ti">'+
+        '<div class="les '+(SCLS[l.key_type||'m'])+'" style="min-width:50px;text-align:center">'+l.time+'</div>'+
+        '<div><div style="font-size:13px;font-weight:600;color:var(--t1)">'+l.name+'</div>'+
+        '<div style="font-size:11px;color:var(--t3)">'+(l.teacher||'')+'</div></div>'+
+      '</div>').join('');
     }
   }
   // 直近の課題
@@ -484,22 +481,29 @@ function renderTT(){
   const times = [...new Set(Object.values(cells).map(c=>c.time||'').filter(Boolean))].sort();
   if(!times.length){ wrap.innerHTML='<div class="empty">時間割はまだ登録されていません</div>'; return; }
 
-  const DAYS=['月','火','水','木','金'];
+  const DAYS=['月','火','水','木','金','土','日'];
   const SCLS={m:'lm',e:'le',s:'ls',j:'lj',so:'lo'};
-  const today = new Date().getDay()-1;
+  const todayDow = new Date().getDay(); // 0=日,1=月...6=土
+  const today = todayDow===0 ? 6 : todayDow-1; // 0=月〜6=日
 
-  let h = '<div class="ttg" style="grid-template-columns:52px repeat(5,1fr)">';
+  let h = '<div class="ttg" style="grid-template-columns:52px repeat(7,1fr)">';
   h += '<div class="tth" style="background:#F8FAFC;font-size:11px"></div>';
   DAYS.forEach((d,i)=>{ h+='<div class="'+(i===today?'tthf':'tth')+'">'+d+(i===today?'<br><span style="font-size:9px;font-weight:400">今日</span>':'')+'</div>'; });
 
   times.forEach(t=>{
-    const hasAny = DAYS.some((_,di)=>cells[di+'-'+t]);
+    // この時間帯に何かある行だけ表示
+    const hasAny = DAYS.some((_,di)=>Object.values(cells).some(c=>c.time===t&&c.day===di));
     if(!hasAny) return;
     h += '<div class="ttt">'+t+'</div>';
     DAYS.forEach((_,di)=>{
-      const c = cells[di+'-'+t];
+      // 同じ曜日・時間の全授業を取得
+      const dayCells = Object.values(cells).filter(c=>c.time===t&&c.day===di);
       const f = di===today;
-      h += '<div class="'+(f?'ttcf':'ttc')+'">'+(c?'<div class="les '+(SCLS[c.key]||'lm')+'">'+c.name+'<br><span style="opacity:.7">'+c.teacher+'</span></div>':'')+'</div>';
+      h += '<div class="'+(f?'ttcf':'ttc')+'">';
+      dayCells.forEach(c=>{
+        h += '<div class="les '+(SCLS[c.key_type||'m'])+'">'+c.name+'<br><span style="opacity:.7">'+c.teacher+'</span></div>';
+      });
+      h += '</div>';
     });
   });
   h += '</div>';

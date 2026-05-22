@@ -371,6 +371,17 @@ body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;f
 <div class="modal-bg" id="tt-modal">
   <div class="modal">
     <div class="modal-title">授業を編集</div>
+    <div class="fgroup"><label class="flabel">曜日 <span style="color:#C62828">*</span></label>
+      <select class="finput" id="tt-day">
+        <option value="0">月曜日</option>
+        <option value="1">火曜日</option>
+        <option value="2">水曜日</option>
+        <option value="3">木曜日</option>
+        <option value="4">金曜日</option>
+        <option value="5">土曜日</option>
+        <option value="6">日曜日</option>
+      </select>
+    </div>
     <div class="fgroup"><label class="flabel">開始時刻 <span style="color:#C62828">*</span></label>
       <input class="finput" id="tt-time" placeholder="例：13:00" style="width:140px">
       <div style="font-size:11px;color:var(--text3);margin-top:4px">HH:MM形式で入力（例：13:00、14:30）</div>
@@ -379,6 +390,8 @@ body{font-family:'Helvetica Neue',Arial,'Hiragino Kaku Gothic ProN',sans-serif;f
       <select class="finput" id="tt-subj">
         <option value="">（なし）</option>
         <option value="授業|m">授業</option>
+        <option value="自学|e">自学</option>
+        <option value="Nexus|so">Nexus</option>
         <option value="ミーティング|so">ミーティング</option>
         <option value="数学Ⅱ・B|m">数学Ⅱ・B</option>
         <option value="数学IA|m">数学IA</option>
@@ -783,8 +796,8 @@ function switchPage(p){
   if(p==='attendance') initAttendance();
 }
 
-// ===== 時間割（生徒個別・時間自由入力対応） =====
-const DAYS=['月','火','水','木','金'];
+// ===== 時間割（生徒個別・時間自由入力対応・複数授業対応） =====
+const DAYS=['月','火','水','木','金','土','日'];
 const SCLS={m:'l-m',e:'l-e',s:'l-s',j:'l-j',so:'l-so'};
 window._tt={};
 window._editCell=null;
@@ -826,58 +839,67 @@ function renderTT(){
     Object.values(window._tt).map(c=>c.time||'').filter(Boolean)
   )].sort();
 
-  let html='<div class="tt-head" style="background:#F8FAFC;font-size:11px;padding:6px"></div>';
+  // グリッドは7列（月〜日）
+  let html='<div class="ttgrid" style="grid-template-columns:56px repeat(7,1fr)">';
+  html+='<div class="tt-head" style="background:#F8FAFC;font-size:11px;padding:6px"></div>';
   DAYS.forEach(d=>{ html+='<div class="tt-head">'+d+'</div>'; });
 
   if(!usedTimes.length){
-    // 空のグリッドを1行だけ表示
     html+='<div class="tt-time" style="font-size:11px;color:var(--text3)">未設定</div>';
     DAYS.forEach((_,di)=>{
-      html+='<div class="tt-cell" onclick="openTT(\''+di+'-new\')" title="クリックで追加" style="min-height:44px;display:flex;align-items:center;justify-content:center">'+
+      html+='<div class="tt-cell" onclick="openTT(\''+di+'-\')" title="クリックで追加" style="min-height:44px;display:flex;align-items:center;justify-content:center">'+
         '<span style="font-size:18px;color:#DEE8F5">＋</span></div>';
     });
   } else {
     usedTimes.forEach(t=>{
       html+='<div class="tt-time" style="font-size:11px">'+t+'</div>';
       DAYS.forEach((_,di)=>{
-        const key = di+'-'+t;
-        const cell = window._tt[key];
-        html+='<div class="tt-cell" onclick="openTT(\''+key+'\')" style="min-height:44px">'+
-          (cell?'<div class="lesson '+SCLS[cell.key]+'">'+cell.name+'<br><span style="opacity:.7">'+cell.teacher+'</span></div>':
-          '<span style="font-size:16px;color:#EEF2F7">＋</span>')+
-        '</div>';
+        // この曜日・時間の全授業を取得（複数対応：キーは di-time-連番）
+        const cells = Object.entries(window._tt)
+          .filter(([k,v])=>v&&v.time===t&&k.startsWith(di+'-'+t))
+          .map(([k,v])=>({key:k,...v}));
+        html+='<div class="tt-cell" style="min-height:44px;cursor:pointer">';
+        cells.forEach(c=>{
+          html+='<div class="lesson '+SCLS[c.key_type||c.key||'m']+'" onclick="openTT(\''+c.key+'\')" style="margin-bottom:3px;cursor:pointer">'+
+            c.name+'<br><span style="opacity:.7">'+c.teacher+'</span></div>';
+        });
+        // 追加ボタン
+        html+='<div onclick="openTT(\''+di+'-'+t+'-new\')" style="text-align:center;color:#DEE8F5;font-size:14px;cursor:pointer" title="授業を追加">＋</div>';
+        html+='</div>';
       });
     });
   }
 
-  // 新しい時間帯を追加するボタン行
-  html+='<div style="grid-column:1/-1;padding:8px 0;border-top:0.5px solid #EEF2F7;display:flex;justify-content:flex-end" class="tt-cell"></div>';
+  html+='</div>';
   grid.innerHTML=html;
 
-  // 「新しい時間帯を追加」ボタンを最後の行に追加
-  const addBtn = document.createElement('div');
-  addBtn.style.cssText='grid-column:1/-1;padding:6px 0';
-  addBtn.innerHTML='<button class="btn-outline btn-sm" onclick="openTT(\'new\')" style="width:100%">＋ 新しい時間帯を追加</button>';
-
-  // グリッドの最後に追加
-  const lastCell = grid.lastElementChild;
-  lastCell.appendChild(document.createElement('span')); // placeholder
+  // 新しい時間帯を追加するボタン
+  const addWrap = document.createElement('div');
+  addWrap.style.cssText='margin-top:10px;text-align:right';
+  addWrap.innerHTML='<button class="btn-outline btn-sm" onclick="openTTNew()">＋ 新しい時間帯を追加</button>';
+  grid.appendChild(addWrap);
 }
+
+window.openTTNew = function(){
+  if(!window._ttUid){ showToast('先に生徒を選択してください','warn'); return; }
+  window._editCell='new';
+  document.getElementById('tt-time').value='';
+  document.getElementById('tt-day').value='0';
+  document.getElementById('tt-subj').value='';
+  document.getElementById('tt-teacher').value='';
+  document.getElementById('tt-room').value='';
+  document.getElementById('tt-modal').classList.add('show');
+};
 
 window.openTT=function(key){
   if(!window._ttUid){ showToast('先に生徒を選択してください','warn'); return; }
   window._editCell=key;
-
-  // keyが「di-time」形式 or「new」
-  let di='', time='';
-  if(key && key!=='new' && !key.endsWith('-new')){
-    const parts = key.split('-');
-    di = parts[0];
-    time = parts.slice(1).join('-');
-  }
   const c = window._tt[key];
-  document.getElementById('tt-time').value = c ? (c.time||time||'') : (time||'');
-  document.getElementById('tt-subj').value = c ? c.name+'|'+c.key : '';
+  // keyからdayIndexを取得
+  const di = key.split('-')[0]||'0';
+  document.getElementById('tt-day').value = di;
+  document.getElementById('tt-time').value = c ? (c.time||'') : '';
+  document.getElementById('tt-subj').value = c ? c.name+'|'+c.key_type : '';
   document.getElementById('tt-teacher').value = c ? c.teacher : '';
   document.getElementById('tt-room').value = c ? c.room : '';
   document.getElementById('tt-modal').classList.add('show');
@@ -887,40 +909,41 @@ window.closeModal=function(){ document.getElementById('tt-modal').classList.remo
 
 window.saveTTCell=function(){
   const timeVal = document.getElementById('tt-time').value.trim();
-  const val = document.getElementById('tt-subj').value;
+  const dayVal  = document.getElementById('tt-day').value;
+  const val     = document.getElementById('tt-subj').value;
   const teacher = document.getElementById('tt-teacher').value.trim();
-  const room = document.getElementById('tt-room').value.trim();
+  const room    = document.getElementById('tt-room').value.trim();
 
   if(!timeVal){ showToast('時刻を入力してください','warn'); return; }
+  if(dayVal===''){ showToast('曜日を選択してください','warn'); return; }
 
-  // keyの再構築：曜日インデックス-時刻
-  let di = '';
-  if(window._editCell && window._editCell!=='new' && !window._editCell.endsWith('-new')){
-    di = window._editCell.split('-')[0];
+  const di = dayVal;
+
+  // 新規か既存か判定
+  const isNew = !window._editCell || window._editCell==='new' || window._editCell.endsWith('-new') || window._editCell.endsWith('-');
+
+  let newKey;
+  if(isNew){
+    // 連番でユニークなキーを生成
+    let n=0;
+    do { newKey=di+'-'+timeVal+'-'+n; n++; } while(window._tt[newKey]);
+  } else {
+    newKey = window._editCell;
+    // 曜日または時間が変わった場合は古いキーを削除して新キーで作成
+    const oldDi = window._editCell.split('-')[0];
+    const oldTime = window._tt[window._editCell]&&window._tt[window._editCell].time;
+    if(oldDi!==di||oldTime!==timeVal){
+      delete window._tt[window._editCell];
+      let n=0;
+      do { newKey=di+'-'+timeVal+'-'+n; n++; } while(window._tt[newKey]);
+    }
   }
-  // 新規の場合はdayインデックスが不明なので0〜4を選ばせる必要がある
-  // ただしグリッドのセルクリックからはdayIndexが取れている
-  if(di==='' && window._editCell){
-    const m = window._editCell.match(/^(\d+)/);
-    if(m) di = m[1];
-  }
 
-  if(di === '' || di === undefined){
-    showToast('セルをクリックして曜日を選択してください','warn');
-    closeModal(); return;
-  }
-
-  const newKey = di+'-'+timeVal;
-
-  // 古いキーを削除
-  if(window._editCell !== newKey && window._tt[window._editCell]){
-    delete window._tt[window._editCell];
-  }
-
-  if(!val){ delete window._tt[newKey]; }
-  else {
+  if(!val){
+    delete window._tt[newKey];
+  } else {
     const p=val.split('|');
-    window._tt[newKey]={name:p[0], key:p[1]||'m', teacher, room, time:timeVal};
+    window._tt[newKey]={name:p[0], key_type:p[1]||'m', teacher, room, time:timeVal, day:parseInt(di)};
   }
   closeModal(); renderTT();
 };
